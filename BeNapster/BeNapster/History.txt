@@ -1,0 +1,17 @@
+BeNapster History
+
+2000/01/09
+BeNapster 0.1
+
+Initial release.
+
+
+2000/01/10
+BeNapster 0.2
+
+Fixed crash after saving preference by adding checking a flag set when 
+the Napster object has been created.
+
+
+2000/02/13
+Code moved to SourceForge CVS

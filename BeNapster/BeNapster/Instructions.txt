@@ -1,0 +1,78 @@
+BeNapster
+
+Instructions
+
+
+Start BeNapster
+
+Read the disclaimer. 
+
+Choose the preferences menu option from the Server
+menu. The registration option does not work however it is only needed for
+features that BeNapster does not support yet.
+
+
+Fill in the preferences and press save.
+
+Username : A nick name to identify you during the chats.
+Password  : A password.
+Port           : an TCP/IP port number for communications, try 6699
+		  if you live behanid a firewall use 0.
+email	: an email address
+Connection Speed:  the speed at which you're connected to the internet.
+				NB if you every go back to the preference window,
+				this  option will have changed from the connection
+				speed to a number, this is normal behaviour.
+
+Press the save button.
+
+Connect to the internet if necessary, then choose the connect option in the
+server menu. The text view should show some informative messages telling
+you for far the connection has got. Then the Napster server's MTOD will
+make an appearence.
+
+Choose the Find option in the MP3's menu, the find window will pop
+up. This is fairly self explainatory. Type the name of the artist or
+the name of the song if the appropriate box and click 'FIND'.
+
+While a search is active the find button will remain greyed out.
+
+The list view will be filled by the search results The format of the
+results is...
+
+"filename" md5 filesize bitrate frequency length nick ip link-type
+
+
+"filename", md5, filesize, bitrate, frequency and length all refer to the MP3
+
+nick is the user owns this MP3, ip is a number version of his IP address.
+
+link-type is a numeric code for the connection speed
+
+0  unknown
+1  14.4 kbps
+2  28.8 kpbs
+3  33.6 kbps
+4  56.7 kbps
+5  64K ISDN
+6  128K ISDN
+7  Cable
+8  DSL
+9  T1
+10 T3 or greater
+
+as you can see the higher the better.
+
+If you see an MP3 you want, select it and press the 'Get' button
+hopefully after a short time a download window will appear
+and the MP3 will start to download.
+
+You can have up to three downloads going at any one time
+however, until BeNapster is a little more stable I wouldn't recomend it.
+
+Once the download finishes the window should close, occasionally it
+doesn't, just leave it there, you can check the file size to double check that
+the download has finished.
+
+When you're finished chose the Disconnect option from the server menu and
+close the server window.
