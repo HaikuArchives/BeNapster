@@ -44,13 +44,15 @@ public:
 	void			SetPort(const char *);
 	void			SetConnection(const char *);			
 	void			SetEmail(const char *);			
+	void			SetDownloadPath(const char *);			
 
 	const char 		*GetUser(void);
 	const char 		*GetPassword(void);
 	const char 		*GetPort(void);
 	const char 		*GetConnection(void);
 	const char		*GetConnectionText(void);			
-	const char 		*GetEmail(void);			
+	const char 		*GetEmail(void);
+	const char		*GetDownloadPath(void);
 
 private:
 
@@ -59,6 +61,7 @@ private:
 	char			*sPort;
 	char			*sConnection;
 	char			*sEmail;
+	char			*sDownloadPath;
 	BLooper			*blLogWindow;
 	
 	char            *GetPref(char *, char *, char *);

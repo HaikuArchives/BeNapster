@@ -39,14 +39,14 @@ bool Preferences::InitPreferences(void)
 	sUser 		= (char *)malloc(100);
 	sPassword 	= (char *)malloc(100);
 	sPort 		= (char *)malloc(100);
-	sConnection = (char *)malloc(100);	
-	sEmail		 = (char *)malloc(100);	
+	sConnection = (char *)malloc(100);
+	sEmail		 = (char *)malloc(100);
+	sDownloadPath = (char *)malloc(B_PATH_NAME_LENGTH);
 
 	BFile *bfPrefs = new BFile(bpPrefs.Path(), B_READ_ONLY);
 	
 	if(bfPrefs->InitCheck() == B_OK)
 	{	
-
 		bfPrefs->GetSize(&stPrefsLength);
 		
 		pPrefs = (char *)malloc(stPrefsLength);
@@ -58,8 +58,8 @@ bool Preferences::InitPreferences(void)
 		sPort 		= GetPref(pPrefs, "PORT", sPort);
 		sConnection = GetPref(pPrefs, "CONNECTION", sConnection);
 		sEmail 		= GetPref(pPrefs, "EMAIL", sEmail);
+		sDownloadPath = GetPref(pPrefs, "DLPATH", sDownloadPath);
 		bReturn = true;
-	
 	}
 	else
 	{
@@ -68,7 +68,7 @@ bool Preferences::InitPreferences(void)
 		*sPort 		 = '\0';
 		*sConnection = '\0';
 		*sEmail 	 = '\0';
-
+		*sDownloadPath = '\0';
 	}
 	delete (bfPrefs);
 	
@@ -115,6 +115,11 @@ const char *Preferences::GetEmail(void)
 
 }
 
+const char *Preferences::GetDownloadPath(void)
+{
+	return(sDownloadPath);
+}
+
 void Preferences::SetUser(const char *sNewValue)
 {
 
@@ -153,14 +158,18 @@ void Preferences::SetEmail(const char *sNewValue)
 	*(sEmail + strlen(sNewValue)) = '\0';
 }
 
+void Preferences::SetDownloadPath(const char *sNewValue)
+{
+	memcpy(sDownloadPath, sNewValue, strlen(sNewValue));
+	*(sDownloadPath + strlen(sNewValue)) = '\0';
+}
+
 void Preferences::SaveFile(void)
 {
-
 	BPath bpPrefs;
 		
 	find_directory(B_USER_SETTINGS_DIRECTORY, &bpPrefs);
 	bpPrefs.Append("BeNapster.prefs");
-
 
 	BFile *bfPrefs = new BFile(bpPrefs.Path(), B_WRITE_ONLY|B_CREATE_FILE);
 	
@@ -176,6 +185,8 @@ void Preferences::SaveFile(void)
 		bfPrefs->Write(sConnection,strlen(sConnection));
 		bfPrefs->Write("\nEMAIL=",7);
 		bfPrefs->Write(sEmail,strlen(sEmail));		
+		bfPrefs->Write("\nDLPATH=",8);
+		bfPrefs->Write(sDownloadPath, strlen(sDownloadPath));		
 		bfPrefs->Write("\n.",2);
 		bfPrefs->Unset();
 	}
@@ -209,4 +220,3 @@ char *Preferences::GetPref(char *pPrefs, char *sPref, char *sValue)
 		}
 		return sValue;
 }
-
