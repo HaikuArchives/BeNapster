@@ -15,3 +15,14 @@ the Napster object has been created.
 
 2000/02/13
 Code moved to SourceForge CVS
+
+
+2000/01/10
+BeNapster 0.3
+
+Tidied up the code that recieves messages from the server.
+This means that searches should now be more stable and
+the Log Window should no longer get strange characters
+during the MTOD
+
+First SourceForge Release
