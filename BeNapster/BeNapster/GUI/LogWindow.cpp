@@ -164,6 +164,9 @@ void	LogWindow::MessageReceived(BMessage *bmMessage)
 			}
 			myFindWindow->Show();
 			break;
+		case BENAPSTER_FIND_WINDOW_GONE:
+			myFindWindow=NULL;
+			break;
 		case BENAPSTER_FIND:
 			bmMessage->FindString("FindString",&sFindString);
 			mySendThis = (char *)malloc(strlen(sFindString) + 1);
@@ -235,7 +238,6 @@ void LogWindow::ActOnMessage(uint16 iMessageType, uint16 iMessageLength, char *p
 
 	switch(iMessageType)
 	{
-		
 		case NAPSTER_LOGIN_OKAY:
 			LogMessage("Login completed", 0);
 			if(myFindWindow)
@@ -252,8 +254,7 @@ void LogWindow::ActOnMessage(uint16 iMessageType, uint16 iMessageLength, char *p
 			}
 			break;
 		case NAPSTER_FOUND:
-			if(myFindWindow)
-			{
+			if(myFindWindow) {
 				myFindWindow->AddToList(pMessage, iMessageLength);
 			}
 			break;

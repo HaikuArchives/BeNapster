@@ -41,9 +41,8 @@ public:
 	void    UnlockFind(void);
 	void    LockFind(void);   
 	void 	AddToList(char *, uint16);
+	virtual	void Quit();
 
-//	void	LogMessage(char *, int32);
-//	bool	QuitRequested();
 
 private:
 	BView *bvMainView;

@@ -27,6 +27,7 @@ const uint32 BENAPSTER_CONNECT			= 'BNct';
 const uint32 BENAPSTER_DISCONNECT		= 'BNdc';
 const uint32 BENAPSTER_PREFERENCES		= 'BNpf';
 const uint32 BENAPSTER_FIND_WINDOW     	= 'BNfw';
+const uint32 BENAPSTER_FIND_WINDOW_GONE = 'BNwf';
 const uint32 BENAPSTER_RESUME_WINDOW   	= 'BNrw';
 
 const uint32 PREFS_SAVE				= 'PWsv';

@@ -193,3 +193,11 @@ void FindWindow::AddToList(char *pMp3, uint16 iBufferLength)
 	blvMp3s->AddItem(mp3Item);
 	Unlock();
 }
+
+void 
+FindWindow::Quit()
+{
+	myLooper->PostMessage(BENAPSTER_FIND_WINDOW_GONE);
+	BWindow::Quit();
+}
+
