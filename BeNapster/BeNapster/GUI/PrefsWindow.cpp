@@ -21,8 +21,8 @@
 
 #include <Box.h>
 
-PrefsWindow::PrefsWindow(BRect frame, const char *title, Preferences *myPreferences) :
-	BWindow(frame, title, B_TITLED_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, 0)
+PrefsWindow::PrefsWindow(const char *title, Preferences *myPreferences) :
+	BWindow(BRect(20,30,330,315), title, B_TITLED_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, B_NOT_RESIZABLE)
 {
 
 	BMessage *bmDummy; 
@@ -33,7 +33,6 @@ PrefsWindow::PrefsWindow(BRect frame, const char *title, Preferences *myPreferen
 					   B_FOLLOW_ALL, 
 					   B_NAVIGABLE|B_WILL_DRAW,
 					   B_NO_BORDER);
-					   
 	AddChild(bvMainView);
 
 
@@ -59,9 +58,13 @@ PrefsWindow::PrefsWindow(BRect frame, const char *title, Preferences *myPreferen
 	btcEmail->SetDivider(be_plain_font->StringWidth("Username: "));
 	bvMainView->AddChild(btcEmail);
 
+	BMessage *bmPath = new BMessage((uint32)0);
+	btcDownloadPath = new BTextControl(BRect(10,170,300,195), "txtDownloadPath", "Path: ",myPreferences->GetDownloadPath(), bmPath, B_FOLLOW_LEFT | B_FOLLOW_TOP, B_WILL_DRAW | B_NAVIGABLE);
+	btcDownloadPath->SetDivider(be_plain_font->StringWidth("Username: "));
+	bvMainView->AddChild(btcDownloadPath);
 
 	bpmConnection = new BPopUpMenu(myPreferences->GetConnectionText());
-	bmfConnection = new BMenuField(BRect(10,170,300,195), "TOVTranslation", "Connction Speed:  ",bpmConnection);
+	bmfConnection = new BMenuField(BRect(10,210,300,235), "TOVTranslation", "Connction Speed:  ",bpmConnection);
 	bmfConnection->SetDivider(be_plain_font->StringWidth("Connction Speed:  "))  ;
 
 	bmDummy = new BMessage(PREFS_CONNECTYION_TYPE);
@@ -111,20 +114,19 @@ PrefsWindow::PrefsWindow(BRect frame, const char *title, Preferences *myPreferen
 	bvMainView->AddChild(bmfConnection);
 
 	BMessage *bmSave = new BMessage(PREFS_SAVE);
-	bbSave = new BButton(BRect(10, 210, 100, 235), "cmdSave", "Save", bmSave, B_FOLLOW_NONE, B_NAVIGABLE|B_WILL_DRAW);
+	bbSave = new BButton(BRect(10, 250, 100, 275), "cmdSave", "Save", bmSave, B_FOLLOW_NONE, B_NAVIGABLE|B_WILL_DRAW);
 	bvMainView->AddChild(bbSave);
 
 	BMessage *bmCancel = new BMessage(B_QUIT_REQUESTED);
-	bbCancel = new BButton(BRect(210, 210, 300, 235), "cmdCancel", "Cancel", bmCancel, B_FOLLOW_NONE, B_NAVIGABLE|B_WILL_DRAW);
+	bbCancel = new BButton(BRect(210, 250, 300, 275), "cmdCancel", "Cancel", bmCancel, B_FOLLOW_NONE, B_NAVIGABLE|B_WILL_DRAW);
 	bvMainView->AddChild(bbCancel);
 	
 	myTempPrefs = 	myPreferences; 
 }
 
+
 void	PrefsWindow::MessageReceived(BMessage *bmMessage)
 {
-
-	
 	switch ( bmMessage->what )
 	{
 		case B_SIMPLE_DATA:
@@ -138,6 +140,7 @@ void	PrefsWindow::MessageReceived(BMessage *bmMessage)
 			myTempPrefs->SetPort(btcPort->Text());
 			myTempPrefs->SetConnection(sConnectionType);
 			myTempPrefs->SetEmail(btcEmail->Text());			
+			myTempPrefs->SetDownloadPath(btcDownloadPath->Text());			
 			myTempPrefs->SaveFile();	
 			myTempPrefs->InitPreferences();
 			PostMessage(B_QUIT_REQUESTED);
@@ -148,4 +151,3 @@ void	PrefsWindow::MessageReceived(BMessage *bmMessage)
 			break;			
 	}
 }
-
