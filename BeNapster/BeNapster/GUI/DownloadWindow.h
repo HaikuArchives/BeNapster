@@ -21,22 +21,27 @@
 #include <Application.h>
 #include <Window.h>
 #include <View.h>
-#include <StatusBar.h>
+#include <Button.h>
+#include <ScrollView.h>
+//#include <ScrollBar.h>
+
+#include "DownloadView.h"
 
 class DownloadWindow : public BWindow
 {
 
 	public:
-		DownloadWindow(BRect, const char *, window_look, window_feel, uint32, uint32, float, char *);
-		void AddBytesReceived (float);
+		DownloadWindow(BRect, const char *, window_look, window_feel, uint32, uint32);
 		
+		DownloadView 	*AddTransfer(char *, float);
+		void		 	Refresh(void);
+
 	private:
 	
 		BView		*bvCoverView;
-		BStatusBar	*bsbDownload;
-		
+	BScrollView *bsvCoverScroll;		
 		float myFileSize;
-
+DownloadView 	*TestView;
 };
 
 

@@ -33,6 +33,8 @@ const uint32 BENAPSTER_FIND_WINDOW     	= 'BNfw';
 const uint32 BENAPSTER_FIND_WINDOW_GONE = 'BNwf';
 const uint32 BENAPSTER_RESUME_WINDOW   	= 'BNrw';
 const uint32 BENAPSTER_BROWSE			= 'BNbr';
+const uint32 BNAPSTER_DOWNLOAD_CANCEL	= 'BNcd';
+
 
 const uint32 PREFS_SAVE				= 'PWsv';
 const uint32 PREFS_CONNECTYION_TYPE	= 'PWct';
