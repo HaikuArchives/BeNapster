@@ -65,10 +65,6 @@ FindWindow::FindWindow(BRect frame, const char *title, BLooper *blMainWindow):
 	rectWinFrame.bottom -=  B_H_SCROLL_BAR_HEIGHT;
 	BRect rectText = rectWinFrame;
 
-	/* give us some border room */
-	/* this also seems to fix our "listview overlaps its scrollbars" problem */
-//	rectText.InsetBy(10,10);
-
 	blvMp3s = new BListView(rectText, "Found", B_SINGLE_SELECTION_LIST, B_FOLLOW_ALL);
 
 	BScrollView *bsvListView = new BScrollView("scrollTextView", blvMp3s, B_FOLLOW_ALL, B_FRAME_EVENTS, true, true, B_FANCY_BORDER);

@@ -5,8 +5,7 @@ pos:brkp:100,100,200,200
 Register__7NapsterPCc;78;/boot/home/Source/BeNapster/BeNapster/Napster.cpp;1
 ActOnMessage__9LogWindowUsUsPc;288;/boot/home/Source/BeNapster/BeNapster/GUI/LogWindow.cpp;1
 DownloadLoop;93;/boot/home/Source/BeNapster/BeNapster/Comms/CommsThreads.cpp;1
-Connect__9LogWindow;345;/boot/home/Source/BeNapster/BeNapster/GUI/LogWindow.cpp;1
 MessageReceived__11PrefsWindowP8BMessage;130;/boot/home/Source/BeNapster/BeNapster/GUI/PrefsWindow.cpp;1
 DownloadLoop;163;/boot/home/Source/BeNapster/BeNapster/Comms/CommsThreads.cpp;1
 ReceiveLoop;241;/boot/home/Source/BeNapster/BeNapster/Comms/CommsThreads.cpp;1
-ActOnMessage__9LogWindowUsUsPc;242;/boot/home/Source/BeNapster/BeNapster/GUI/LogWindow.cpp;1
+__3MP3PCcb;30;/boot/home/Source/BeNapster/BeNapster/MP3.cpp;1

@@ -2,14 +2,6 @@
 #include "MP3.h"
 #endif
 
-#include <View.h>
-#include <Rect.h>
-#include <String.h>
-
-#include <stdlib.h>
-
-#include "Constants.h"
-
 MP3::MP3(const char *sMP3, bool bPattern)
 {
 	char *pTemp, *pTempEnd;
@@ -26,27 +18,33 @@ MP3::MP3(const char *sMP3, bool bPattern)
 	bsDetails.Append(pTemp);
 	bsDetails.Append(" ");
 	
+
 	pTemp = strchr(pTempEnd + 2, ' ') + 1;   // size
 	pTempEnd = strchr(pTemp, ' ') + 1;
 	
 	strncpy(mySize,pTemp,-1+pTempEnd-pTemp);
+	*(mySize + (pTempEnd - pTemp)) = '\0';  // strncpy does not null terminate less the src is shorter than the specified length
 	//strcat(mySize," bytes");
 	
 	pTemp = strchr(pTempEnd, ' ') + 1;   // include bitrate
 	strncpy(myBitrate,pTempEnd,pTemp-pTempEnd);
+	*(myBitrate + (pTempEnd-pTemp)) = '\0';  // strncpy does not null terminate less the src is shorter than the specified length
 	//strcat(myBitrate," kbps");
 	
 	pTempEnd = strchr(pTemp, ' ') + 1;   // include frequency
 	strncpy(myFrequency,pTemp,pTempEnd-pTemp);
+	*(myFrequency + (pTempEnd-pTemp)) = '\0';  // strncpy does not null terminate less the src is shorter than the specified length
 	//strcat(myFrequency," Hz");
 	
 	pTemp = strchr(pTempEnd, ' ') + 1;   // include length in seconds
 	strncpy(myLength,pTempEnd,pTemp-pTempEnd);
+	*(myLength + (pTempEnd-pTemp)) = '\0';  // strncpy does not null terminate less the src is shorter than the specified length
 	//strcat(myLength," sec");
 	
 	pTempEnd = strchr(pTemp, ' ') + 1;   // include nick
 	strncpy(myNick,pTemp,pTempEnd-pTemp);
 	*pTempEnd = '\0';
+	strncpy(myNick,pTemp,pTempEnd-pTemp);
 
 	pTemp = strchr(pTempEnd + 1, ' ') + 1;   // skip IP
 	pTempEnd = strchr(pTemp +1, ' ') + 1;   // find link type
