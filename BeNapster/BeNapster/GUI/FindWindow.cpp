@@ -19,8 +19,6 @@
 #include "FindWindow.h"
 #endif
 
-#include <Box.h>
-
 FindWindow::FindWindow(BRect frame, const char *title, BLooper *blMainWindow):
 	BWindow(frame, title, B_TITLED_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, 0)
 {
@@ -29,7 +27,9 @@ FindWindow::FindWindow(BRect frame, const char *title, BLooper *blMainWindow):
 	myLooper = blMainWindow;
 	bvMainView = new BBox(rectWinFrame, "CoveringView", 
 					   B_FOLLOW_ALL, 
-					   B_NAVIGABLE|B_WILL_DRAW);
+					   B_NAVIGABLE|B_WILL_DRAW,
+					   B_NO_BORDER);
+
 	AddChild(bvMainView);
 
 	BMessage *bmArtist = new BMessage((uint32)0);
@@ -57,21 +57,30 @@ FindWindow::FindWindow(BRect frame, const char *title, BLooper *blMainWindow):
 	myGet = new BButton(BRect(210, 100, 300, 118), "cmdGet", "Get", bmGet, B_FOLLOW_NONE, B_NAVIGABLE|B_WILL_DRAW);
 	bvMainView->AddChild(myGet);
 
-	rectWinFrame.top = 130;	
+	myHeader=new InfoHeader(BRect(0,130,rectWinFrame.right,149));
+	bvMainView->AddChild(myHeader);
+	
+	rectWinFrame.top = 150;	
 	rectWinFrame.right -= B_V_SCROLL_BAR_WIDTH;
 	rectWinFrame.bottom -=  B_H_SCROLL_BAR_HEIGHT;
 	BRect rectText = rectWinFrame;
 
 	/* give us some border room */
 	/* this also seems to fix our "listview overlaps its scrollbars" problem */
-	rectText.InsetBy(10,10);
+//	rectText.InsetBy(10,10);
 
-	blvMp3s = new BListView(rectText, "Found");
+	blvMp3s = new BListView(rectText, "Found", B_SINGLE_SELECTION_LIST, B_FOLLOW_ALL);
 
 	BScrollView *bsvListView = new BScrollView("scrollTextView", blvMp3s, B_FOLLOW_ALL, B_FRAME_EVENTS, true, true, B_FANCY_BORDER);
 	bvMainView->AddChild(bsvListView); 
 
 }
+
+void FindWindow::Quit()
+{
+	be_app->PostMessage(BENAPSTER_FIND_WINDOW_GONE);
+	BWindow::Quit();
+};
 
 void	FindWindow::MessageReceived(BMessage *bmMessage)
 {
@@ -85,9 +94,6 @@ void	FindWindow::MessageReceived(BMessage *bmMessage)
 	switch ( bmMessage->what )
 	{
 		case B_SIMPLE_DATA:
-			break;
-		case B_QUIT_REQUESTED:
-			myLooper->PostMessage(B_QUIT_REQUESTED);
 			break;
 		case BENAPSTER_FIND:
 			sFindString = CreateFindString(sFindString);
@@ -188,16 +194,8 @@ void FindWindow::AddToList(char *pMp3, uint16 iBufferLength)
 	
 	memcpy(pBuffer, pMp3, iBufferLength);
 	*(pBuffer + (int32)iBufferLength) = '\0';
-	mp3Item = new MP3(pBuffer);
+	mp3Item = new MP3(pBuffer, bPatternToggler);
 	Lock();
 	blvMp3s->AddItem(mp3Item);
 	Unlock();
 }
-
-void 
-FindWindow::Quit()
-{
-	myLooper->PostMessage(BENAPSTER_FIND_WINDOW_GONE);
-	BWindow::Quit();
-}
-

@@ -25,8 +25,8 @@
 LogWindow::LogWindow(BRect frame, const char *title, 
 	window_look look, window_feel feel, uint32 flags, uint32 workspaces) :
 	BWindow(frame, title, look, feel, flags, workspaces),
-	myFindWindow(NULL),
-	myNapster(NULL)
+	myNapster(NULL),
+	myFindWindow(NULL)
 {
 
 	BMenu 		*bmuTemp;
@@ -35,12 +35,15 @@ LogWindow::LogWindow(BRect frame, const char *title,
 	
 	bSomeThingToSend = false;
 	iTidDownloadCount = 0;
+	tidInLoop = 0;
+	tidOutLoop = 0;
+	tidReceive = 0;
 
 
 	myPreferences = new Preferences(this);
-	if(myPreferences->InitPreferences()) {
+	if(myPreferences->InitPreferences()){
 		bRegistered = true;
-	} else {
+	} else 	{
 		ShowPrefsWindow("Registration");
 		bRegistered = false;
 	}
@@ -255,6 +258,7 @@ void LogWindow::ActOnMessage(uint16 iMessageType, uint16 iMessageLength, char *p
 			break;
 		case NAPSTER_FOUND:
 			if(myFindWindow) {
+				myFindWindow->bPatternToggler=1-myFindWindow->bPatternToggler;
 				myFindWindow->AddToList(pMessage, iMessageLength);
 			}
 			break;
@@ -265,7 +269,7 @@ void LogWindow::ActOnMessage(uint16 iMessageType, uint16 iMessageLength, char *p
 			myNapster->FirstLogin(myPreferences->GetUser(),
 				 				   myPreferences->GetPassword(),
 				 				   myPreferences->GetPort(),
-	   							   "BeNapster 0.3",
+	   							   "BeNapster 0.4",
 			 					   myPreferences->GetConnection(),
 			 					   myPreferences->GetEmail());
 			break;
@@ -297,7 +301,6 @@ LogWindow::QuitRequested()
 	if(myFindWindow) {
 		myFindWindow->PostMessage(B_QUIT_REQUESTED);
 	}
-//	pwPreferences->PostMessage(B_QUIT_REQUESTED);
 	kill_thread(tidInLoop);
 	kill_thread(tidOutLoop);
 	be_app->PostMessage(B_QUIT_REQUESTED);
@@ -327,14 +330,23 @@ void LogWindow::Connect(void)
 	if(myNapster->bConnected) {
 		txtLogText->Insert("Connected...\n");
 
-		tidInLoop = spawn_thread(InCommsLoop, "Communications In Thread", B_LOW_PRIORITY, this);
-		stTheadStatus = resume_thread(tidInLoop);
+		if(tidInLoop == 0)   // InCommsLoop isn't running
+		{
+			tidInLoop = spawn_thread(InCommsLoop, "Communications In Thread", B_LOW_PRIORITY, this);
+			stTheadStatus = resume_thread(tidInLoop);
+		}
+		
+		if(tidOutLoop == 0)	// OutCommsLoop isn't running
+		{
+			tidOutLoop = spawn_thread(OutCommsLoop, "Communications Out Thread", B_LOW_PRIORITY, this);
+			stTheadStatus = resume_thread(tidOutLoop);
+		}
 
-		tidOutLoop = spawn_thread(OutCommsLoop, "Communications Out Thread", B_LOW_PRIORITY, this);
-		stTheadStatus = resume_thread(tidOutLoop);
-
-		tidReceive = spawn_thread(ReceiveLoop, "Remote Thread", B_LOW_PRIORITY, myPreferences);
-		stTheadStatus = resume_thread(tidReceive);
+		if(memcmp(myPreferences->GetPort(),"0\0",2 != 0 && tidReceive == 0 )) // port isn't o and Remote Thread isn't running
+		{
+			tidReceive = spawn_thread(ReceiveLoop, "Remote Thread", B_LOW_PRIORITY, myPreferences);
+			stTheadStatus = resume_thread(tidReceive);
+		}
 		
 
 		txtLogText->Insert("Logging in...\n");		
@@ -342,7 +354,7 @@ void LogWindow::Connect(void)
 			myNapster->Login(myPreferences->GetUser(),
 							  myPreferences->GetPassword(),
 			 				  myPreferences->GetPort(),
-			 				  "BeNapster 0.3",
+			 				  "BeNapster 0.4",
 						   	  myPreferences->GetConnection());
 		
 		}
@@ -423,7 +435,7 @@ void LogWindow::ShowPrefsWindow(const char *sName)
 void LogWindow::ShowGNU(void)
 {
 
-    txtLogText->Insert("BeNapster 0.3, Copyright (C) 2000  David Burnett\n");
+    txtLogText->Insert("BeNapster 0.4, Copyright (C) 2000  David Burnett\n");
     txtLogText->Insert("BeNapster comes with ABSOLUTELY NO WARRANTY\n");
     txtLogText->Insert("This is free software, and you are welcome to redistribute it\n");
     txtLogText->Insert("under certain conditions as described in the GNU Public Licence.\n");

@@ -33,6 +33,10 @@ DownloadWindow::DownloadWindow(BRect frame, const char *title,
 					   		B_NAVIGABLE|B_WILL_DRAW);
 	AddChild(bvCoverView);
 	
+	rgb_color rgbBGColor={220,220,220};
+	
+	bvCoverView->SetViewColor(rgbBGColor);
+	
 	brWinFrame.top += 10;
 	brWinFrame.left += 10;
 	brWinFrame.bottom -= 10;

@@ -1,16 +1,20 @@
 #ifndef FIND_WINDOW_H
 #define FIND_WINDOW_H
 
+#include <Application.h>
 #include <Window.h>
 #include <View.h>
 #include <ScrollView.h>
 #include <ListView.h>
 #include <Button.h>
 #include <TextControl.h>
+#include <Box.h>
+#include <Bitmap.h>
 
 #include "Napster.h"
 #include "Constants.h"
 #include "MP3.h"
+#include "GUI/InfoHeader.h"
 //BeNapster - Napster Client for the Be Operating system
 //Copyright(C) 2000 David Burnett
 //
@@ -29,7 +33,6 @@
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include <stdlib.h>
-#include <Window.h>
 
 class FindWindow : public BWindow 
 {
@@ -37,12 +40,14 @@ public:
 	FindWindow(BRect frame, const char *title, BLooper *blMainWindow); 
 //	~FindWindow();
 	
+	virtual	void Quit();
+
 	void	MessageReceived(BMessage *);
 	void    UnlockFind(void);
 	void    LockFind(void);   
 	void 	AddToList(char *, uint16);
-	virtual	void Quit();
 
+	bool bPatternToggler;
 
 private:
 	BView *bvMainView;
@@ -51,6 +56,7 @@ private:
 	BTextControl *myArtist;
 	BTextControl *mySong;
 	BTextControl *myMax;
+	InfoHeader *myHeader;
 	BButton *myFind;
 	BButton *myGet;
 	BLooper	*myLooper;

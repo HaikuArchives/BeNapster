@@ -31,7 +31,9 @@ PrefsWindow::PrefsWindow(BRect frame, const char *title, Preferences *myPreferen
 
 	bvMainView = new BBox(Bounds(), "CoveringView", 
 					   B_FOLLOW_ALL, 
-					   B_NAVIGABLE|B_WILL_DRAW);
+					   B_NAVIGABLE|B_WILL_DRAW,
+					   B_NO_BORDER);
+					   
 	AddChild(bvMainView);
 
 
