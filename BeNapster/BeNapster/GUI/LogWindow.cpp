@@ -424,11 +424,7 @@ void LogWindow::NewDownload(char *pBuffer, uint16 iBufferLength)
 
 void LogWindow::ShowPrefsWindow(const char *sName)
 {
-
-	pwPreferences = new PrefsWindow(BRect (20, 20, 330, 265),
-							  			  sName,
-                                          myPreferences);
-    
+	pwPreferences = new PrefsWindow(sName, myPreferences);
 	pwPreferences->Show();
 }
 
