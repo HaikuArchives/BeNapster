@@ -15,11 +15,16 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+#ifndef BENAPSTER_H
+#define BENAPSTER_H
+
 #include <Application.h>
 #include <NetAddress.h>
 #include <NetEndpoint.h>
 #include <NetBuffer.h>
 #include <Rect.h>
+
+#include <stdio.h>
 
 #include "GUI/LogWindow.h"
 
@@ -29,7 +34,10 @@ public:
 // insert public methods and data here
 // constructor
 	BeNapster();
+	virtual void MessageReceived(BMessage* msg);
 private:
 	LogWindow *myLogWindow;
 };
 // END (class declaration)
+
+#endif

@@ -164,8 +164,8 @@ int32 DownloadLoop(void *pDummy)
 			iFileLength = strtoul(pLength, NULL, 10);
 			
 			//create the download window now we know all the details
-			myDownloadWindow = new DownloadWindow(BRect(100,100, 400, 200), "Download", 
-				B_DOCUMENT_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, 0, 
+			myDownloadWindow = new DownloadWindow(BRect(100,100, 400, 200), "BeNapster Download", 
+				B_DOCUMENT_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, B_NOT_RESIZABLE, 
 				B_CURRENT_WORKSPACE, (float )iFileLength, pLeaf);
 			
 			myDownloadWindow->Show();
@@ -262,8 +262,8 @@ int32 ReceiveLoop(void *pDummy)
 	
 		bneReceived->Send("0",1);   // I think this is the start position, other values may be resumes
 	
-		myDownloadWindow = new DownloadWindow(BRect(100,100, 400, 200), "Download", 
-				B_DOCUMENT_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, 0, 
+		myDownloadWindow = new DownloadWindow(BRect(100,100, 400, 200), "Upload From User", 
+				B_DOCUMENT_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, B_NOT_RESIZABLE, 
 				B_CURRENT_WORKSPACE, (float )iFileLength, sFileName);
 		
 		myDownloadWindow->Show();

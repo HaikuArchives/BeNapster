@@ -38,3 +38,13 @@ BeNapster::BeNapster(): BApplication("application/x-vnd.VargolSoft-BeNapster")
 	myLogWindow->Show();
 
 }
+
+void BeNapster::MessageReceived(BMessage* msg)
+{
+	printf("App Message!\n");
+	if (msg->what == BENAPSTER_FIND_WINDOW_GONE)
+	{
+		myLogWindow->PostMessage(BENAPSTER_FIND_WINDOW_GONE);
+		printf("Find_Close sent.\n");
+	};
+};

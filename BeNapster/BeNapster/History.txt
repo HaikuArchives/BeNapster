@@ -13,7 +13,7 @@ Fixed crash after saving preference by adding checking a flag set when
 the Napster object has been created.
 
 
-2000/02/13
+2000/01/13
 Code moved to SourceForge CVS
 
 
@@ -26,3 +26,12 @@ the Log Window should no longer get strange characters
 during the MTOD
 
 First SourceForge Release
+
+
+2000/01/22
+BeNapster 0.4
+
+Cosmetic changes to the Find and Preferecnes window.
+BeNapster now works behind a firewall.
+Disconnecting and reconnecting should no longer crash.
+Minor internal changes. 

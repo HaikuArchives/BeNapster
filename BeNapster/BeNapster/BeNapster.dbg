@@ -1,5 +1,5 @@
 # window positions
-pos:team:134,305,959,995
+pos:team:147,55,972,745
 pos:brkp:100,100,200,200
 # breakpoints
 Register__7NapsterPCc;78;/boot/home/Source/BeNapster/BeNapster/Napster.cpp;1
@@ -7,3 +7,5 @@ MessageReceived__11PrefsWindowP8BMessage;135;/boot/home/Source/BeNapster/BeNapst
 ActOnMessage__9LogWindowUsUsPc;288;/boot/home/Source/BeNapster/BeNapster/GUI/LogWindow.cpp;1
 DownloadLoop;93;/boot/home/Source/BeNapster/BeNapster/Comms/CommsThreads.cpp;1
 ReceiveLoop;228;/boot/home/Source/BeNapster/BeNapster/Comms/CommsThreads.cpp;1
+Draw__10InfoHeaderG5BRect;21;/boot/home/Source/BeNapster/BeNapster/GUI/InfoHeader.cpp;1
+Connect__9LogWindow;345;/boot/home/Source/BeNapster/BeNapster/GUI/LogWindow.cpp;1

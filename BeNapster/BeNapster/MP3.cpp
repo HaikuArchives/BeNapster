@@ -10,11 +10,10 @@
 
 #include "Constants.h"
 
-MP3::MP3(const char *sMP3)
+MP3::MP3(const char *sMP3, bool bPattern)
 {
 	char *pTemp, *pTempEnd;
 	BString      bsDetails;
-	int32        iLinkType;
 	
 	myMessage = (char *)malloc( strlen(sMP3) + 1);
 	strcpy(myMessage, sMP3);
@@ -29,25 +28,35 @@ MP3::MP3(const char *sMP3)
 	
 	pTemp = strchr(pTempEnd + 2, ' ') + 1;   // size
 	pTempEnd = strchr(pTemp, ' ') + 1;
-	pTempEnd = strchr(pTempEnd, ' ') + 1;   // include bitrate
-	pTempEnd = strchr(pTempEnd, ' ') + 1;   // include frequency
-	pTempEnd = strchr(pTempEnd, ' ') + 1;   // include length in seconds
-	pTempEnd = strchr(pTempEnd, ' ') + 1;   // include nick
+	
+	strncpy(mySize,pTemp,-1+pTempEnd-pTemp);
+	//strcat(mySize," bytes");
+	
+	pTemp = strchr(pTempEnd, ' ') + 1;   // include bitrate
+	strncpy(myBitrate,pTempEnd,pTemp-pTempEnd);
+	//strcat(myBitrate," kbps");
+	
+	pTempEnd = strchr(pTemp, ' ') + 1;   // include frequency
+	strncpy(myFrequency,pTemp,pTempEnd-pTemp);
+	//strcat(myFrequency," Hz");
+	
+	pTemp = strchr(pTempEnd, ' ') + 1;   // include length in seconds
+	strncpy(myLength,pTempEnd,pTemp-pTempEnd);
+	//strcat(myLength," sec");
+	
+	pTempEnd = strchr(pTemp, ' ') + 1;   // include nick
+	strncpy(myNick,pTemp,pTempEnd-pTemp);
 	*pTempEnd = '\0';
-
-	bsDetails.Append(pTemp);
-	bsDetails.Append(" ");
 
 	pTemp = strchr(pTempEnd + 1, ' ') + 1;   // skip IP
 	pTempEnd = strchr(pTemp +1, ' ') + 1;   // find link type
-	
-	iLinkType = atol(pTemp);
 
-	bsDetails.Append(aConnectionSpeeds[iLinkType]);
-	bsDetails.Append(" ");
+	myLinkType = atol(pTemp);
 
 	myDetails = (char *)malloc(bsDetails.Length() + 1);
 	strcpy(myDetails, bsDetails.String());
+
+	myPattern=bPattern;
 	
 }
 
@@ -72,27 +81,50 @@ char *MP3::GetDetails(void)
 void MP3::DrawItem(BView *bvOwner, BRect brItem, bool bDrawEverything) 
 { 
    	rgb_color rgbColor;  
-	rgb_color rgbSelectedColor = {255,255,0,0};
-	rgb_color rgbMP3Color = {0,0,255,0}; 
+	rgb_color rgbSelectedColor = {255,240,240,0};
+	rgb_color rgbMP3Color = {0,0,20,0};
+	rgb_color rgbPatternColor={240,240,255};
 
-    if (bDrawEverything || IsSelected()) 
-    { 
+	rgbColor = bvOwner->ViewColor();
+
+    //if (bDrawEverything || IsSelected()) 
+    //{ 
  		if (IsSelected())  
  		{  
         	rgbColor = rgbSelectedColor; 
         }
         else
         {
-        	rgbColor = bvOwner->ViewColor();		 
+        	if (myPattern)
+        	{
+        		rgbColor = rgbPatternColor;
+        	};
     	} 
        	bvOwner->SetHighColor(rgbColor); 
+       	bvOwner->SetLowColor(rgbColor); 
        	bvOwner->FillRect(brItem); 
-    } 
-     
+    //};
 
 	bvOwner->SetHighColor(rgbMP3Color);
 
 	bvOwner->MovePenTo(brItem.left+4, brItem.bottom-2);  
    	bvOwner->DrawString(myDetails);
 
+	bvOwner->MovePenTo(brItem.left+450, brItem.bottom-2);
+	bvOwner->DrawString(mySize);
+	
+	bvOwner->MovePenTo(brItem.left+500, brItem.bottom-2);
+	bvOwner->DrawString(myBitrate);
+	
+	bvOwner->MovePenTo(brItem.left+550, brItem.bottom-2);
+	bvOwner->DrawString(myFrequency);
+	
+	bvOwner->MovePenTo(brItem.left+600, brItem.bottom-2);
+	bvOwner->DrawString(myLength);
+	
+	bvOwner->MovePenTo(brItem.left+650, brItem.bottom-2);
+	bvOwner->DrawString(myNick);
+	
+	bvOwner->MovePenTo(brItem.left+750, brItem.bottom-2);
+	bvOwner->DrawString(aConnectionSpeeds[myLinkType]);
 }

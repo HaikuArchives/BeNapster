@@ -35,6 +35,7 @@ SRCS= BeNapster.cpp \
 	Napster.cpp \
 	GUI/DownloadWindow.cpp \
 	GUI/FindWindow.cpp \
+	GUI/InfoHeader \
 	GUI/LogWindow.cpp \
 	GUI/PrefsWindow.cpp \
 	Preferences/Preferences.cpp \
@@ -42,7 +43,7 @@ SRCS= BeNapster.cpp \
 
 #	specify the resource files to use
 #	full path or a relative path to the resource file can be used.
-RSRCS= 
+RSRCS=Resource.rsrc 
 
 # @<-src@ 
 #%}
