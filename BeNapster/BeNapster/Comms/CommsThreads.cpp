@@ -15,6 +15,7 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+#include <ctype.h>
 #include "Comms/CommsThreads.h"
 
 //main loop is a seperate function so I can spawn it
@@ -154,7 +155,7 @@ int32 DownloadLoop(void *pDummy)
 			// according to the unoffical protocol you can not tell how long 
 			// the length is. but the mp3 starts
 			// with 0xFF
-			while((unsigned char)*pReceiveBuffer != 0xFF)
+			while(isdigit((unsigned char)*pReceiveBuffer) == 0)
 			{
 				pTemp++;
 				iBytesReceived = bneSong.Receive(pReceiveBuffer, 1);
