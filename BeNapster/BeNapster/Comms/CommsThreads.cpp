@@ -160,7 +160,7 @@ int32 DownloadLoop(void *pDummy)
 			// according to the unoffical protocol you can not tell how long 
 			// the length is. but the mp3 starts
 			// with 0xFF
-			while(isdigit((unsigned char)*pReceiveBuffer) == 0)
+			while(isdigit((unsigned char)*pReceiveBuffer) != 0)
 			{
 				pTemp++;
 				iBytesReceived = bneSong.Receive(pReceiveBuffer, 1);
