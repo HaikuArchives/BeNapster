@@ -145,7 +145,7 @@ void Napster::Send(const char *pBuffer, uint16 iType)
 	
 }
 
-void Napster::ShareFile(entry_ref mp3file)
+void Napster::ShareFile(entry_ref mp3file, const char* sharename)
 {
 	BString tosend;
 	uint32 fsize;
@@ -165,7 +165,7 @@ void Napster::ShareFile(entry_ref mp3file)
 		time = ( fsize / ((mp3f.GetBitrate()*1000) / 8) );
 	else
 		time = 0;
-	tosend << "\"" << mp3file.name << "\" "
+	tosend << "\"" << sharename << "\" "
 		   << mp3f.GetMD5().String() << " "
 		   << fsize << " " << (uint32) mp3f.GetBitrate() << " "
 		   << (uint32) mp3f.GetSamplingFreq() << " " << time;

@@ -176,17 +176,22 @@ int32 DownloadLoop(void *pDummy)
 				B_CURRENT_WORKSPACE);
 			
 			myDownloadWindow->Show();
-			
+			myDownloadWindow->Lock();
 			dlView = myDownloadWindow->AddTransfer(pFile, iFileLength);
+			myDownloadWindow->Unlock();
 			// The 0xFF is part of the mp3 so we need to write it out
 			bfSong->Write(pReceiveBuffer, iBytesReceived);	
 			iDataLength = iBytesReceived;
+			myDownloadWindow->Lock();
 			dlView->AddBytesReceived(iBytesReceived);
+			myDownloadWindow->Unlock();
 			
 			iBytesReceived = bneSong.Receive(pReceiveBuffer, 4096);
 			bfSong->Write(pReceiveBuffer, iBytesReceived);
 			iDataLength += iBytesReceived;	
+			myDownloadWindow->Lock();
 			dlView->AddBytesReceived(iBytesReceived);
+			myDownloadWindow->Unlock();
 			
 			while(iDataLength != iFileLength)
 			{
@@ -197,7 +202,9 @@ int32 DownloadLoop(void *pDummy)
 					}
 					bfSong->Write(pReceiveBuffer, iBytesReceived);	
 					iDataLength += iBytesReceived;
+					myDownloadWindow->Lock();
 					dlView->AddBytesReceived(iBytesReceived);
+					myDownloadWindow->Unlock();
 			}
 			
 			bfSong->Unset();
@@ -219,7 +226,7 @@ int32 ReceiveLoop(void *pDummy)
 	logWindow = (LogWindow *)pDummy;
 	
 	bneNapsterPort.Bind(atol(logWindow->myPreferences->GetPort()));
-	
+	if(bneNapsterPort.InitCheck() != B_OK) return 0;
 	bneNapsterPort.Listen();
 	for ( ; ; ) {
 		bneReceived = bneNapsterPort.Accept();
@@ -262,13 +269,13 @@ int32 DoAccept(void *pointer)
 		received.CopyInto(nick, 3, (offset - 3));
 		received.CopyInto(filename, (offset + 1), ((received.FindLast("\"") - 1) - offset) );
 		status << "Received request from " << nick << " To download " << filename;	
-		logWindow->LogMessage(status.String(), BN_MESSAGE); 			
+		//logWindow->LogMessage(status.String(), BN_MESSAGE); 			
 		if((SendAFile(logWindow, filename.String()) == false)) {
 			status << "\nAn Error Occured While Sending " << filename << " to " << nick;
-			logWindow->LogMessage(status.String(), BN_ERROR);
+			//logWindow->LogMessage(status.String(), BN_ERROR);
 		} else {
 			status << "\nTransfer of " << filename << " to " << nick << " successful";
-			logWindow->LogMessage(status.String(), BN_STATUS);
+			//logWindow->LogMessage(status.String(), BN_STATUS);
 		}
 	}
 	if(received.Compare("SEND", 4) == 0) {
@@ -278,12 +285,12 @@ int32 DoAccept(void *pointer)
 		received.CopyInto(lengthStr, (received.FindLast("\"")+2), (received.Length() - (received.FindLast("\"")+2)));
 		fileLength = strtoul(lengthStr.String(), NULL, 10);
 		status << "Received Request from " << nick << " To Upload " << filename << " To Us.";
-		logWindow->LogMessage(status.String(), BN_MESSAGE);
+		//logWindow->LogMessage(status.String(), BN_MESSAGE);
 		if((UploadFromUser(logWindow, filename.String(), fileLength) == false)) {
-			logWindow->LogMessage(status.String(), BN_ERROR);
+			//logWindow->LogMessage(status.String(), BN_ERROR);
 		} else {
 			status << "\nSuccesfully Received " << filename << " from " << nick;
-			logWindow->LogMessage(status.String(), BN_STATUS);
+			//logWindow->LogMessage(status.String(), BN_STATUS);
 		}
 	}	
 	// Close the connection
@@ -307,7 +314,7 @@ bool SendAFile(LogWindow* logWindow, const char* filename)
 	BFile sendFile(path.String(), B_READ_ONLY);
 	if(sendFile.InitCheck() != B_OK) {
 		status << "Could not open " << path << "for reading";
-		logWindow->LogMessage(status.String(), BN_ERROR);
+		//logWindow->LogMessage(status.String(), BN_ERROR);
 		logWindow->netEndpoint->Close();
 		return false;
 	}
@@ -395,7 +402,7 @@ bool UploadFromUser(LogWindow* logWindow, const char* filename, uint32 iFileLeng
 		bfMp3->Unset();
 		myDownloadWindow->Refresh();
 	} else {
-		logWindow->LogMessage("Could Not Open The File", BN_ERROR);
+		//logWindow->LogMessage("Could Not Open The File", BN_ERROR);
 	}
 	return true;
 }

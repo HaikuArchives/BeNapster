@@ -54,12 +54,12 @@ public:
 	void 	 	Login(const char *, const char *, const char *, const char *, const char *);
 	void	 	Send(const char *, uint16);
 	bool        Quit(void);
-	void		ShareFile(entry_ref); 
+	void		ShareFile(entry_ref, const char*); 
 	bool		UploadFile(const char*);
 
 private:
 	bool         myQuit;
-
+	
 };
 
 

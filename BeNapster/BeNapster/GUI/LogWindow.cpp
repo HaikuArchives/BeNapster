@@ -114,6 +114,8 @@ LogWindow::LogWindow(BRect frame, const char *title,
 	SetErrorColor(ec);
 	SetMessageColor(mc);
 	
+	// Used for FindAllMP3s
+	inSubdir = false;
 	
 	// Make the background black
 	rgb_color color = {0, 0, 0, 0};
@@ -510,7 +512,11 @@ void	LogWindow::ShareMP3s(void)
 		 	LogMessage(statusMsg.String(), BN_ERROR);
 			return;
 	}
-
+	FindAllMP3s(shareDir);
+	//shareThread = spawn_thread(FindAllMP3s, "Sharing MP3 Thread", B_LOW_PRIORITY, shareDir);
+	//if(resume_thread(shareThread) != B_OK)
+	//	LogMessage("An Error Occured While Launching The Thread to Share MP3s", BN_ERROR);
+/*	
 	while(shareDir->GetNextEntry(&bentry, true) == B_OK) {
 		bentry.GetPath(&bpath);
 		filename = bpath.Leaf();
@@ -520,7 +526,7 @@ void	LogWindow::ShareMP3s(void)
 			else
 				myNapster->ShareFile(ref);
 		}
-	}	
+	}	*/
 }
 
 void	LogWindow::BeginUpload(char *message) 
@@ -559,4 +565,51 @@ void	LogWindow::BeginUpload(char *message)
 		status << "Error While Attempting To Upload " << realFilename;
 		LogMessage(status.String(), BN_ERROR);
 	}
+}
+
+int32	LogWindow::FindAllMP3s(void* dummy)
+{
+	BDirectory *startDir, *next;
+	BEntry entry;
+	dirent dir;
+	entry_ref ref;
+	node_ref dirRef;
+	BPath path;
+	BString filename;
+	BString shareName;
+		
+	startDir = (BDirectory*) dummy;
+	
+	while(startDir->GetNextEntry(&entry, true) == B_OK)
+	{
+		entry.GetPath(&path);	
+		filename = path.Leaf();
+		if(filename.IFindLast("mp3", filename.Length()) != B_ERROR)
+		{
+			printf("%s\n", filename.String());
+			if(inSubdir)
+				shareName << (new BPath(startDir, NULL, false))->Leaf() << "/" << filename;
+			else
+				shareName << filename;			
+			if(get_ref_for_path(path.Path(), &ref) != B_OK)
+				LogMessage("Error Sharing MP3", BN_ERROR);
+			else
+				myNapster->ShareFile(ref, shareName.String());
+			printf("Done with that one...\n");
+		}
+	}
+	
+	while(startDir->GetNextDirents(&dir, 1))
+	{
+		printf("got dir...\n");
+		dirRef.device = dir.d_pdev;
+		dirRef.node = dir.d_ino;
+		LogMessage(dir.d_name, BN_ERROR);
+		if((strcmp(dir.d_name, ".") == 0) || (strcmp(dir.d_name, "..") == 0)) continue;
+		next = new BDirectory(&dirRef);
+		inSubdir = true;
+		FindAllMP3s(next);
+	}
+	printf("Exiting...\n");
+	return 0;
 }

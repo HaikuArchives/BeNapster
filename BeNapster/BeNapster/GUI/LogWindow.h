@@ -71,7 +71,8 @@ private:
 	thread_id 	tidOutLoop;
 	thread_id   tidDownload[3];
 	thread_id   tidReceive;
-	
+	thread_id	shareThread;
+		
 	void		NewDownload(char *, uint16);
 	void 		ShowPrefsWindow(const char *);
 	void		ShowGNU(void);
@@ -79,12 +80,14 @@ private:
 	void		SetErrorColor(rgb_color);
 	void		SetMessageColor(rgb_color mc);
 	void		ShareMP3s(void);
+	int32		FindAllMP3s(void*);
 	
 	// Where we will store color codes for different messages in the
 	// log window
 	rgb_color statusColor, errorColor, messageColor;
 	
 	int32		iTidDownloadCount;
+	bool		inSubdir;
 
 };
 
