@@ -264,7 +264,7 @@ void LogWindow::ActOnMessage(uint16 iMessageType, uint16 iMessageLength, char *p
 			myNapster->FirstLogin(myPreferences->GetUser(),
 				 				   myPreferences->GetPassword(),
 				 				   myPreferences->GetPort(),
-	   							   "BeNapster 0.2",
+	   							   "BeNapster 0.3",
 			 					   myPreferences->GetConnection(),
 			 					   myPreferences->GetEmail());
 			break;
@@ -345,7 +345,7 @@ void LogWindow::Connect(void)
 			myNapster->Login(myPreferences->GetUser(),
 							  myPreferences->GetPassword(),
 			 				  myPreferences->GetPort(),
-			 				  "BeNapster 0.2",
+			 				  "BeNapster 0.3",
 						   	  myPreferences->GetConnection());
 		
 		}
@@ -438,7 +438,7 @@ void LogWindow::ShowPrefsWindow(const char *sName)
 void LogWindow::ShowGNU(void)
 {
 
-    txtLogText->Insert("BeNapster 0.2, Copyright (C) 2000  David Burnett\n");
+    txtLogText->Insert("BeNapster 0.3, Copyright (C) 2000  David Burnett\n");
     txtLogText->Insert("BeNapster comes with ABSOLUTELY NO WARRANTY\n");
     txtLogText->Insert("This is free software, and you are welcome to redistribute it\n");
     txtLogText->Insert("under certain conditions as described in the GNU Public Licence.\n");
