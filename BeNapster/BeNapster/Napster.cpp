@@ -14,7 +14,8 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+#include <Be.h>
+#include "Util/MP3File.h"
 #include "Napster.h"
 
 // Main Napster class, GUI, takes care of the connections with the server
@@ -22,6 +23,7 @@
 
 Napster::Napster()
 {
+	myPreferences.InitPreferences();
 	myQuit = false;
 }
 
@@ -35,7 +37,7 @@ char   *Napster::GetServer(char *pBuffer)
 	BNetAddress  bnaServerServer;
 	BNetEndpoint bnpServerServer;
 	
-	bnaServerServer.SetTo("server.napster.com", 8875);
+	bnaServerServer.SetTo(NAPSTER_SERVER, NAPSTER_PORT);
 	bnpServerServer.Connect(bnaServerServer);
 	
 	// server sends best server details
@@ -142,6 +144,58 @@ void Napster::Send(const char *pBuffer, uint16 iType)
 	
 }
 
+void Napster::ShareFile(entry_ref mp3file)
+{
+	BString tosend;
+	uint32 fsize;
+	BEntry	bentry(&mp3file);
+	BPath	bpath(&bentry);
+	uint32 time;
+	
+	MP3File mp3f(mp3file);
+		
+	// Format is as follows:
+	// "filename.mp3"  md5_checksum size bitrate frequency time
+	
+	// Build up what to send
+	
+	mp3f.GetSize((off_t *)&fsize);
+	if(mp3f.GetBitrate() != 0)
+		time = ( fsize / ((mp3f.GetBitrate()*1000) / 8) );
+	else
+		time = 0;
+	tosend << "\"" << mp3file.name << "\" "
+		   << mp3f.GetMD5().String() << " "
+		   << fsize << " " << (uint32) mp3f.GetBitrate() << " "
+		   << (uint32) mp3f.GetSamplingFreq() << " " << time;
+		   
+	// Send it
+	Send(tosend.String(), NAPSTER_SHARE);
+}
+
+bool Napster::UploadFile(const char* filename)
+{
+	// what's stored in filename is actually in the format:
+	// <nick>"filename"
+	
+	BString thePath;
+	BFile theFile;
+	BString realFilename;
+	BString nick;
+	
+		thePath << myPreferences.GetShareDir() << "/" << realFilename;
+	
+	// Initialize the BFile object with the file pathname, return false
+	// if it fails
+	if(theFile.SetTo(thePath.String(), B_READ_ONLY) != B_OK)
+		return false;
+	
+	// Acknowledge the upload
+	Send("", NAPSTER_UPLOAD_ACK);
+	
+	// Assume we're succesful, and return true
+	return true;
+}
 
 bool Napster::Quit(void)
 {

@@ -46,7 +46,8 @@ public:
 	void 	ActOnMessage(uint16, uint16, char *);
 	bool	QuitRequested();
 	void    Connect(void);
-
+	void	BeginUpload(char *);
+	
 	bool 		bSomeThingToSend, bRegistered;
 	char		*mySendThis;
 	uint16      myMessageType;
@@ -58,6 +59,8 @@ private:
 	BScrollView 		*scrollTextView;
 	BTextView 			*txtLogText;
 	
+	BDirectory			*shareDir;
+	
 	FindWindow			*myFindWindow;
 	PrefsWindow			*pwPreferences; 
 
@@ -68,8 +71,16 @@ private:
 	
 	void		NewDownload(char *, uint16);
 	void 		ShowPrefsWindow(const char *);
-	void		LogMessage(char *, int32);
+	void		LogMessage(const char *, uint16);
 	void		ShowGNU(void);
+	void		SetStatusColor(rgb_color);
+	void		SetErrorColor(rgb_color);
+	void		SetMessageColor(rgb_color mc);
+	void		ShareMP3s(void);
+	
+	// Where we will store color codes for different messages in the
+	// log window
+	rgb_color statusColor, errorColor, messageColor;
 	
 	int32		iTidDownloadCount;
 

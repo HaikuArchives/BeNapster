@@ -28,5 +28,6 @@ int32 InCommsLoop(void *);
 int32 OutCommsLoop(void *);
 int32 DownloadLoop(void *);
 int32 ReceiveLoop(void *);
+int32 DoAccept(void *);
 
 #endif //COMMS_TREADS_H

@@ -18,6 +18,7 @@
 #ifndef PREFERENCES_H
 #define PREFERENCES_H
 
+#include <Application.h>
 #include <File.h>
 #include <FindDirectory.h>
 #include <Looper.h>
@@ -33,7 +34,7 @@ class Preferences
 {
 
 public:
-	Preferences(BLooper *);
+	Preferences(BLooper * = be_app);
 	
 	bool			InitPreferences(void);
 	void			SaveFile(void);
@@ -44,6 +45,7 @@ public:
 	void			SetPort(const char *);
 	void			SetConnection(const char *);			
 	void			SetEmail(const char *);			
+	void			SetShareDir(const char *);
 	void			SetDownloadPath(const char *);			
 
 	const char 		*GetUser(void);
@@ -51,7 +53,8 @@ public:
 	const char 		*GetPort(void);
 	const char 		*GetConnection(void);
 	const char		*GetConnectionText(void);			
-	const char 		*GetEmail(void);
+	const char 		*GetEmail(void);	
+	const char		*GetShareDir(void);
 	const char		*GetDownloadPath(void);
 
 private:
@@ -61,6 +64,7 @@ private:
 	char			*sPort;
 	char			*sConnection;
 	char			*sEmail;
+	BPath			shareDir;
 	char			*sDownloadPath;
 	BLooper			*blLogWindow;
 	

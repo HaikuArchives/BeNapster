@@ -44,6 +44,8 @@ int32 InCommsLoop(void *pDummy)
 				{
 					iBytesReceived += pLogWindow->myNapster->bneNapsterServer.Receive(pMessage + iBytesReceived, iMessageLength - iBytesReceived);
 				}	
+				pMessage = (char *) realloc((char *)pMessage, (iMessageLength+1));
+				*(pMessage + iMessageLength) = '\0';
 				pLogWindow->ActOnMessage(iMessageType, iMessageLength, pMessage);
 			}
 		}
@@ -209,14 +211,14 @@ int32 DownloadLoop(void *pDummy)
 
 int32 ReceiveLoop(void *pDummy)
 {
-	
 	DownloadWindow 	*myDownloadWindow;
 	Preferences 	*myPreferences;
 
 	BNetEndpoint 	bneNapsterPort;
 	BNetEndpoint 	*bneReceived;
 	BFile           *bfMp3;
-	
+	thread_id		acceptedThread;
+		
 	uint16			*pShort;
 	uint16 			iMessageType, iLength;
 	size_t          iBytesReceived;
@@ -230,10 +232,15 @@ int32 ReceiveLoop(void *pDummy)
 	pBuffer = (char *)malloc(4096);
 	pShort = (uint16 *)pBuffer;
 	
-	
+		
 	bneNapsterPort.Bind(atol(myPreferences->GetPort()));
+	
 	bneNapsterPort.Listen();
-	bneReceived = bneNapsterPort.Accept();
+	//for ( ; ; ) {
+		bneReceived = bneNapsterPort.Accept();
+	//	acceptedThread = spawn_thread(DoAccept, "Post-Connection Accept", B_LOW_PRIORITY, bneReceived);
+	//	resume_thread(acceptedThread);
+	//}
 	bneReceived->Send("\n",1);
 
 	// should get a standard napster message
@@ -245,7 +252,6 @@ int32 ReceiveLoop(void *pDummy)
 	iBytesReceived = bneReceived->Receive(pBuffer, (int32)iLength);
 
 	// message should contain username and file name	
-	
 	pTemp = strchr(pBuffer,'\"');
 	pTemp++;
 	
@@ -254,7 +260,6 @@ int32 ReceiveLoop(void *pDummy)
 	
 	for(pTemp = pNameEnd; *pTemp != '\\' && *pTemp != '/'; pTemp--);  // '/' in case we ever get BeOS or *nix files
 	pTemp++;
-	
 	sFileName = (char *)malloc(pNameEnd - pTemp + 2);
 	*sFileName = '\0';   // terminate the string
 	
@@ -293,4 +298,59 @@ int32 ReceiveLoop(void *pDummy)
 		
 	bneReceived->Close();
 	return(0);
+}
+
+// Run after a client connects
+int32 DoAccept(void *pointer)
+{
+	uint16 mType;		// For holding message type
+	uint16 mLength;		// For holding message length
+	int32 bytesRead;
+	BNetEndpoint* netEndpoint;
+	BString parsed;
+		
+	unsigned char* buffer;	// For holding whatever it is we receive
+	
+	netEndpoint = (BNetEndpoint *)pointer;
+	
+	buffer = (unsigned char *)malloc(1024);		// We'll take the data in 1K
+												// Chunks
+	
+	netEndpoint->Send("\n",1);					// ?		
+
+	while((bytesRead = netEndpoint->Receive((unsigned char *)buffer, 1024)) > 0) {
+		if(*buffer == 'G') {		// Looks like someone wants us to send them a file		
+			for(int i = 0; i < 3; ++i) {
+				parsed += *buffer;		
+				buffer++;
+			}
+			if (parsed == "GET") {	// Affirmative
+				buffer++;
+				parsed = "";
+				while(*buffer != '\"') {
+					parsed += *buffer;
+					buffer++;
+				}
+				BString nick = parsed;
+				buffer++;
+				
+				parsed = "";
+				
+				while(*buffer != '\"') {
+					parsed += *buffer;
+					buffer++;
+				}	
+				BString filename = parsed;
+				parsed = "";
+				parsed << "Got - " << nick << " " << filename;
+			}
+			else {
+				buffer--;
+				buffer--;
+				buffer--;
+			}
+		}
+	
+	}
+		
 }

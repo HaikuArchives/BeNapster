@@ -17,7 +17,7 @@
 
 #include "Preferences.h"
 
-Preferences::Preferences(BLooper *myLogWindow)
+Preferences::Preferences(BLooper *myLogWindow = be_app)
 {
 	blLogWindow = myLogWindow;
 }
@@ -27,6 +27,7 @@ bool Preferences::InitPreferences(void)
 {
 
 	BPath bpPrefs;
+	char *tmp;
 	char *pPrefs;
 	bool bReturn = false;
 	
@@ -39,6 +40,9 @@ bool Preferences::InitPreferences(void)
 	sUser 		= (char *)malloc(100);
 	sPassword 	= (char *)malloc(100);
 	sPort 		= (char *)malloc(100);
+	sConnection = (char *)malloc(100);	
+	sEmail		 = (char *)malloc(100);	
+	tmp			= (char *)malloc(100);
 	sConnection = (char *)malloc(100);
 	sEmail		 = (char *)malloc(100);
 	sDownloadPath = (char *)malloc(B_PATH_NAME_LENGTH);
@@ -58,7 +62,12 @@ bool Preferences::InitPreferences(void)
 		sPort 		= GetPref(pPrefs, "PORT", sPort);
 		sConnection = GetPref(pPrefs, "CONNECTION", sConnection);
 		sEmail 		= GetPref(pPrefs, "EMAIL", sEmail);
+		tmp			= GetPref(pPrefs, "SHAREDIR", tmp); 
 		sDownloadPath = GetPref(pPrefs, "DLPATH", sDownloadPath);
+		
+		// Set the share directory object to what we just loaded
+		shareDir.SetTo(tmp);
+		
 		bReturn = true;
 	}
 	else
@@ -115,6 +124,11 @@ const char *Preferences::GetEmail(void)
 
 }
 
+const char	*Preferences::GetShareDir(void)
+{
+	return shareDir.Path();
+}	
+
 const char *Preferences::GetDownloadPath(void)
 {
 	return(sDownloadPath);
@@ -158,6 +172,11 @@ void Preferences::SetEmail(const char *sNewValue)
 	*(sEmail + strlen(sNewValue)) = '\0';
 }
 
+void Preferences::SetShareDir(const char* path)
+{
+	shareDir.SetTo(path);
+}
+
 void Preferences::SetDownloadPath(const char *sNewValue)
 {
 	memcpy(sDownloadPath, sNewValue, strlen(sNewValue));
@@ -185,6 +204,8 @@ void Preferences::SaveFile(void)
 		bfPrefs->Write(sConnection,strlen(sConnection));
 		bfPrefs->Write("\nEMAIL=",7);
 		bfPrefs->Write(sEmail,strlen(sEmail));		
+		bfPrefs->Write("\nSHAREDIR=",10);
+		bfPrefs->Write(shareDir.Path(), strlen(shareDir.Path()));
 		bfPrefs->Write("\nDLPATH=",8);
 		bfPrefs->Write(sDownloadPath, strlen(sDownloadPath));		
 		bfPrefs->Write("\n.",2);

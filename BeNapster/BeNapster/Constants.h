@@ -18,6 +18,9 @@
 #ifndef _CONSTANTS_H
 #define _CONSTANTS_H
 
+#define	BENAPSTER_VERSION	"BeNapster v0.4"
+
+
 const uint32 BENAPSTER_FIND         	= 'BNmf';
 const uint32 BENAPSTER_GET         		= 'BNmg';
 const uint32 BENAPSTER_FIND_END     	= 'BNfe';
@@ -29,9 +32,11 @@ const uint32 BENAPSTER_PREFERENCES		= 'BNpf';
 const uint32 BENAPSTER_FIND_WINDOW     	= 'BNfw';
 const uint32 BENAPSTER_FIND_WINDOW_GONE = 'BNwf';
 const uint32 BENAPSTER_RESUME_WINDOW   	= 'BNrw';
+const uint32 BENAPSTER_BROWSE			= 'BNbr';
 
 const uint32 PREFS_SAVE				= 'PWsv';
 const uint32 PREFS_CONNECTYION_TYPE	= 'PWct';
+
 
 
 
@@ -55,6 +60,18 @@ const uint16 NAPSTER_GET        	= 0x00CB;
 const uint16 NAPSTER_DOWNLOAD_ACK   = 0x00CC;
 const uint16 NAPSTER_REMOTE_SEND    = 0x01F4;
 
+#define	NAPSTER_MOTD	621
+#define	NAPSTER_SHARE	100
+#define	NAPSTER_UPLOAD_NOTIFY	220
+#define NAPSTER_UPLOAD_DONE		221
+#define NAPSTER_UPLOAD_REQUEST	607
+#define	NAPSTER_UPLOAD_ACK	608
+#define	NAPSTER_SERVER_STATS 214
+
+//#define	NAPSTER_SERVER	"opennap.fortyoz.org"
+#define		NAPSTER_SERVER	"server.napster.com"
+#define	NAPSTER_PORT	8875
+
 
 // array of array of chars holding the connection speeds
 
@@ -71,4 +88,11 @@ const char aConnectionSpeeds[11][14] = {
 									{'T','1','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0'},
 									{'T','3',' ','o','r',' ','g','r','e','a','t','e','r','\0'}
 								};
-#endif
+
+// Colors used in the log window
+
+#define BN_STATUS	0
+#define	BN_ERROR	1
+#define BN_MESSAGE	2
+
+#endif	/* CONSTANTS_H */

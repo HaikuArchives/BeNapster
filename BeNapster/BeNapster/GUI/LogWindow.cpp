@@ -19,8 +19,11 @@
 #include "LogWindow.h"
 #endif
 
-
 #include <TextView.h>
+#include "Util/Util.h"
+
+const char* MD5_file(char *filename);
+
 
 LogWindow::LogWindow(BRect frame, const char *title, 
 	window_look look, window_feel feel, uint32 flags, uint32 workspaces) :
@@ -100,7 +103,20 @@ LogWindow::LogWindow(BRect frame, const char *title,
 								B_FOLLOW_ALL_SIDES,
 								B_NAVIGABLE|B_PULSE_NEEDED|B_WILL_DRAW);
 
-	rgb_color color = {255, 255, 255, 0};
+	// Status messages
+	rgb_color sc = {0, 0, 255, 0}; // Blue
+	// Error Messages
+	rgb_color ec = {255, 0, 0, 0};	// Red
+	// 'Chat' messages
+	rgb_color mc = {0, 255, 0, 0};	// Green
+	
+	SetStatusColor(sc);
+	SetErrorColor(ec);
+	SetMessageColor(mc);
+	
+	
+	// Make the background black
+	rgb_color color = {0, 0, 0, 0};
 	
 	txtLogText->SetAlignment(B_ALIGN_LEFT);
 	txtLogText->SetViewColor(color);
@@ -108,8 +124,10 @@ LogWindow::LogWindow(BRect frame, const char *title,
 	txtLogText->MakeEditable(FALSE);
 	txtLogText->MakeResizable(TRUE);
 	txtLogText->MakeSelectable(TRUE);
-	txtLogText->SetStylable(0);
 	txtLogText->SetWordWrap(TRUE);
+	txtLogText->SetStylable(TRUE);
+	
+	txtLogText->SetFontAndColor(be_bold_font, B_FONT_ALL, &statusColor);
 	
 	ShowGNU();
 	
@@ -132,6 +150,7 @@ void	LogWindow::MessageReceived(BMessage *bmMessage)
 
 	BScreen *bsScreen;
 	BRect brFindWindow;
+	BString dbug;
 	
 	switch ( bmMessage->what )
 	{
@@ -211,12 +230,25 @@ void	LogWindow::MessageReceived(BMessage *bmMessage)
 }
 	
 
-void LogWindow::LogMessage(char *sTextToLog, int32 iLength)
+void LogWindow::LogMessage(const char *sTextToLog, uint16 type = BN_STATUS)
 {
-
-	char *sBuffer;
+	// Just to make sure
+	txtLogText->SetStylable(true);
+	
+	switch(type) {
+		case BN_STATUS:
+			txtLogText->SetFontAndColor(NULL, 0, &statusColor);
+			break;
+		case BN_ERROR:
+			txtLogText->SetFontAndColor(NULL, 0, &errorColor);
+			break;
+		case BN_MESSAGE:
+			txtLogText->SetFontAndColor(NULL, 0, &messageColor);
+			break;
+	}
+	
 	Lock();
-	if (iLength > 0)
+	/*if (iLength > 0)
 	{
 		sBuffer = (char *)malloc(iLength + 1);
 		memcpy(sBuffer,sTextToLog,iLength);
@@ -224,9 +256,9 @@ void LogWindow::LogMessage(char *sTextToLog, int32 iLength)
 		txtLogText->Insert(sBuffer);
 	}
 	else
-	{
+	{*/
 		txtLogText->Insert(sTextToLog);
-	}
+	//}
 	txtLogText->Insert("\n");
 	txtLogText->ScrollToSelection();
 	Unlock();
@@ -238,11 +270,14 @@ void LogWindow::ActOnMessage(uint16 iMessageType, uint16 iMessageLength, char *p
 {
 
 	BAlert     *baGeneralAlert;
-
+	BString status;
+	char stats[3][10];
+		
 	switch(iMessageType)
 	{
 		case NAPSTER_LOGIN_OKAY:
-			LogMessage("Login completed", 0);
+			LogMessage("Login completed", BN_STATUS);
+			ShareMP3s();
 			if(myFindWindow)
 			{
 				myFindWindow->UnlockFind();
@@ -269,7 +304,7 @@ void LogWindow::ActOnMessage(uint16 iMessageType, uint16 iMessageLength, char *p
 			myNapster->FirstLogin(myPreferences->GetUser(),
 				 				   myPreferences->GetPassword(),
 				 				   myPreferences->GetPort(),
-	   							   "BeNapster 0.4",
+	   							   BENAPSTER_VERSION,
 			 					   myPreferences->GetConnection(),
 			 					   myPreferences->GetEmail());
 			break;
@@ -279,14 +314,22 @@ void LogWindow::ActOnMessage(uint16 iMessageType, uint16 iMessageLength, char *p
 			ShowPrefsWindow("Registration");							
 			break;
 		case NAPSTER_NICK_INVALID:
+			LogMessage("The nick requested was already taken", BN_ERROR);
 			baGeneralAlert = new BAlert("Nick Taken","The Username you provided is invalid\nPlease choose another one.","OK");
 			baGeneralAlert->Go();
 			ShowPrefsWindow("Registration");							
 			break;
+		case NAPSTER_MOTD:
+			LogMessage(pMessage, BN_STATUS);
+			break;
+		case NAPSTER_UPLOAD_REQUEST:
+			BeginUpload(pMessage);
+			break;		
 		default:
 			if(iMessageLength > 0)
 			{
-				LogMessage(pMessage, iMessageLength);
+				status << "[" << (int32) iMessageType << "]" << pMessage;
+				LogMessage(status.String(), BN_ERROR);
 			}
 			break;
 	}
@@ -328,8 +371,14 @@ void LogWindow::Connect(void)
 	
 	
 	if(myNapster->bConnected) {
-		txtLogText->Insert("Connected...\n");
+		LogMessage("Connected...", BN_STATUS);
 
+		tidInLoop = spawn_thread(InCommsLoop, "Communications In Thread", B_LOW_PRIORITY, this);
+		stTheadStatus = resume_thread(tidInLoop);
+
+		tidOutLoop = spawn_thread(OutCommsLoop, "Communications Out Thread", B_LOW_PRIORITY, this);
+		stTheadStatus = resume_thread(tidOutLoop);
+/*=======
 		if(tidInLoop == 0)   // InCommsLoop isn't running
 		{
 			tidInLoop = spawn_thread(InCommsLoop, "Communications In Thread", B_LOW_PRIORITY, this);
@@ -341,6 +390,7 @@ void LogWindow::Connect(void)
 			tidOutLoop = spawn_thread(OutCommsLoop, "Communications Out Thread", B_LOW_PRIORITY, this);
 			stTheadStatus = resume_thread(tidOutLoop);
 		}
+>>>>>>> 1.5*/
 
 		if(memcmp(myPreferences->GetPort(),"0\0",2 != 0 && tidReceive == 0 )) // port isn't o and Remote Thread isn't running
 		{
@@ -349,7 +399,7 @@ void LogWindow::Connect(void)
 		}
 		
 
-		txtLogText->Insert("Logging in...\n");		
+		LogMessage("Logging in...", BN_STATUS);		
 		if(bRegistered) {
 			myNapster->Login(myPreferences->GetUser(),
 							  myPreferences->GetPassword(),
@@ -359,7 +409,7 @@ void LogWindow::Connect(void)
 		
 		}
 	} else {
-		txtLogText->Insert("Connection Failed...\n");		
+		LogMessage("Connection Failed...\n", BN_ERROR);		
 	}
 
 
@@ -393,10 +443,10 @@ void LogWindow::NewDownload(char *pBuffer, uint16 iBufferLength)
 			stTheadStatus = resume_thread(tidDownload[iTidDownloadCount]);
 			iTidDownloadCount++;
 		} else {
-			LogMessage("Maximum Downloads Exceeded", 0);
+			LogMessage("Maximum Downloads Exceeded", BN_ERROR);
 		}
 	} else {
-		LogMessage("Asking Remote client for file", 0);
+		LogMessage("Asking Remote client for file", BN_STATUS);
 		// Send a 500, asking the other client to send me the file.
 		pUser = pBuffer;	
 		pTemp = strchr(pBuffer, ' ');
@@ -424,16 +474,100 @@ void LogWindow::NewDownload(char *pBuffer, uint16 iBufferLength)
 
 void LogWindow::ShowPrefsWindow(const char *sName)
 {
+/*<<<<<<< LogWindow.cpp
+
+	pwPreferences = new PrefsWindow(BRect (20, 20, 330, 310),
+							  			  sName,
+                                          myPreferences);
+    
+=======*/
 	pwPreferences = new PrefsWindow(sName, myPreferences);
 	pwPreferences->Show();
 }
 
 void LogWindow::ShowGNU(void)
 {
+    LogMessage("BeNapster 0.4, Copyright (C) 2000  David Burnett", BN_STATUS);
+    LogMessage("BeNapster comes with ABSOLUTELY NO WARRANTY", BN_STATUS);
+    LogMessage("This is free software, and you are welcome to redistribute it", BN_STATUS);
+    LogMessage("under certain conditions as described in the GNU Public Licence.", BN_STATUS);
+	LogMessage("Please refer to the file named COPYING that came with this archive\n", BN_STATUS);
+}
 
-    txtLogText->Insert("BeNapster 0.4, Copyright (C) 2000  David Burnett\n");
-    txtLogText->Insert("BeNapster comes with ABSOLUTELY NO WARRANTY\n");
-    txtLogText->Insert("This is free software, and you are welcome to redistribute it\n");
-    txtLogText->Insert("under certain conditions as described in the GNU Public Licence.\n");
-	txtLogText->Insert("Please refer to the file named COPYING that came with this archive\n\n\n");
+void LogWindow::SetStatusColor(rgb_color sc) {
+	statusColor = sc;
+}
+
+void LogWindow::SetErrorColor(rgb_color ec) {
+	errorColor = ec;
+}
+
+void LogWindow::SetMessageColor(rgb_color mc) {
+	messageColor = mc;
+}
+
+void	LogWindow::ShareMP3s(void)
+{
+	BEntry bentry;
+	BPath bpath;
+	entry_ref ref;
+	BString statusMsg, filename;
+	
+	LogMessage("Sharing MP3's...", BN_STATUS);
+	// Setup the BDirectory with the directory given in the preferences
+	shareDir = new BDirectory(myPreferences->GetShareDir());
+	
+	// Make sure it was all peachy-keen and stuff
+	if(shareDir->InitCheck() != B_OK) {
+		 	statusMsg << "Error While Sharing MP3's: could not open share directory"
+		 			  << myPreferences->GetShareDir();
+		 	LogMessage(statusMsg.String(), BN_ERROR);
+			return;
+	}
+
+	while(shareDir->GetNextEntry(&bentry, true) == B_OK) {
+		bentry.GetPath(&bpath);
+		filename = bpath.Leaf();
+		if(filename.IFindLast("mp3", filename.Length()) != B_ERROR) {
+			if(get_ref_for_path(bpath.Path(), &ref) != B_OK)
+				LogMessage("Error Sharing MP3", BN_ERROR);
+			else
+				myNapster->ShareFile(ref);
+		}
+	}	
+}
+
+void	LogWindow::BeginUpload(char *message) 
+{
+	BString realFilename, nick, status;
+	
+	while(*message != '\"') {
+		nick += *message;
+		message++;
+	}
+
+	// Advance past the quote
+	message++;
+
+	// Get the "real" filename
+	while(*message != '\"') {
+		realFilename += *message;
+		message++;
+	}
+
+	status << "Upload Request Received For: " << realFilename << " "
+	       << "From: " << " " << nick;
+	
+	LogMessage(status.String(), BN_STATUS);
+	
+	status="";
+	
+	if(myNapster->UploadFile(realFilename.String())) {
+		status << "Upload Of " << realFilename << "Acknowledged";
+		LogMessage(status.String(), BN_STATUS);
+	}
+	else {
+		status << "Error While Attempting To Upload " << realFilename;
+		LogMessage(status.String(), BN_ERROR);
+	}
 }

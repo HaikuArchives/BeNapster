@@ -19,12 +19,14 @@
 #define NAPSTER_H
 
 
-
+#include <Application.h>
 #include <NetAddress.h>
 #include <NetEndpoint.h>
 #include <NetBuffer.h>
 #include <String.h>
 #include <File.h>
+#include "Util/Util.h"
+#include "Preferences/Preferences.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -40,6 +42,8 @@ public:
 
 	BNetAddress  bnaNapsterServer;
 	BNetEndpoint bneNapsterServer;
+	Preferences	 myPreferences;
+	
 	bool 		 bConnected;
 
 	char   		*GetServer(char *);
@@ -49,11 +53,12 @@ public:
 	void 		FirstLogin(const char *, const char *, const char *, const char *, const char *, const char *);
 	void 	 	Login(const char *, const char *, const char *, const char *, const char *);
 	void	 	Send(const char *, uint16);
-	bool        Quit(void); 
+	bool        Quit(void);
+	void		ShareFile(entry_ref); 
+	bool		UploadFile(const char*);
 
 private:
 	bool         myQuit;
-	
 
 };
 

@@ -22,7 +22,7 @@
 #include <Box.h>
 
 PrefsWindow::PrefsWindow(const char *title, Preferences *myPreferences) :
-	BWindow(BRect(20,30,330,315), title, B_TITLED_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, B_NOT_RESIZABLE)
+	BWindow(BRect(20,30,350,380), title, B_TITLED_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, B_NOT_RESIZABLE)
 {
 
 	BMessage *bmDummy; 
@@ -114,12 +114,27 @@ PrefsWindow::PrefsWindow(const char *title, Preferences *myPreferences) :
 	bvMainView->AddChild(bmfConnection);
 
 	BMessage *bmSave = new BMessage(PREFS_SAVE);
-	bbSave = new BButton(BRect(10, 250, 100, 275), "cmdSave", "Save", bmSave, B_FOLLOW_NONE, B_NAVIGABLE|B_WILL_DRAW);
+	bbSave = new BButton(BRect(10, 250, 100, 285), "cmdSave", "Save", bmSave, B_FOLLOW_NONE, B_NAVIGABLE|B_WILL_DRAW);
 	bvMainView->AddChild(bbSave);
 
 	BMessage *bmCancel = new BMessage(B_QUIT_REQUESTED);
 	bbCancel = new BButton(BRect(210, 250, 300, 275), "cmdCancel", "Cancel", bmCancel, B_FOLLOW_NONE, B_NAVIGABLE|B_WILL_DRAW);
 	bvMainView->AddChild(bbCancel);
+
+	btcShareDir = new BTextControl(BRect(10,280,200,235), "txtShared",
+								   "Shared MP3's Directory: ",
+								   myPreferences->GetShareDir(),
+								   NULL,
+								   B_FOLLOW_LEFT | B_FOLLOW_TOP, B_WILL_DRAW | B_NAVIGABLE);
+	btcShareDir->SetDivider(be_plain_font->StringWidth("Shared MP3's Directory: "));
+	
+	// The "Browse" Button
+	
+	bvMainView->AddChild(btcShareDir);	
+	
+	browseButton = new BButton(BRect(210, 280, 300, 305), "Browse", "Browse",
+	(new BMessage(BENAPSTER_BROWSE)));
+	bvMainView->AddChild(browseButton);
 	
 	myTempPrefs = 	myPreferences; 
 }
@@ -127,15 +142,14 @@ PrefsWindow::PrefsWindow(const char *title, Preferences *myPreferences) :
 
 void	PrefsWindow::MessageReceived(BMessage *bmMessage)
 {
+	// Used for the browse window
+	BPath *myPath;
 	
 	BEntry    *beDropped;
 	BEntry    *beTraversed;
 	BPath     bpDropped;
 	entry_ref erDropped;
-	
 
-	
-	
 	switch ( bmMessage->what )
 	{
 		case B_SIMPLE_DATA:
@@ -164,12 +178,22 @@ void	PrefsWindow::MessageReceived(BMessage *bmMessage)
 		case PREFS_CONNECTYION_TYPE:
 			memcpy(sConnectionType, bmMessage->FindString("CONNECTION"),2);
 			break;
+		case BENAPSTER_BROWSE:
+			openPanel = new OpenDirPanel(new BMessenger(NULL,this), &openFilter);
+			openPanel->Show();	
+			break;
+		case B_REFS_RECEIVED:
+			bmMessage->FindRef("refs", 0, &shareRef);
+			myPath = new BPath((new BEntry(&shareRef)));
+			btcShareDir->SetText(myPath->Path());			
+			break;
 		case PREFS_SAVE:
 			myTempPrefs->SetUser(btcUsername->Text());
 			myTempPrefs->SetPassword(btcPassword->Text());
 			myTempPrefs->SetPort(btcPort->Text());
 			myTempPrefs->SetConnection(sConnectionType);
 			myTempPrefs->SetEmail(btcEmail->Text());			
+			myTempPrefs->SetShareDir(btcShareDir->Text());
 			myTempPrefs->SetDownloadPath(btcDownloadPath->Text());			
 			myTempPrefs->SaveFile();	
 			myTempPrefs->InitPreferences();

@@ -28,6 +28,7 @@
 
 #include "Constants.h"
 #include "Preferences/Preferences.h"
+#include "GUI/OpenDirPanel.h"
 
 #include <stdlib.h>
 
@@ -49,11 +50,16 @@ private:
 	BTextControl	*btcPassword;
 	BTextControl	*btcPort;	
 	BTextControl	*btcEmail;	
+	BTextControl	*btcShareDir;
 	BTextControl	*btcDownloadPath;
 	BPopUpMenu		*bpmConnection;
 	BMenuField		*bmfConnection;
 	BButton         *bbSave;
 	BButton         *bbCancel;
+	BButton			*browseButton;
+	OpenDirFilter	openFilter;
+	OpenDirPanel	*openPanel;
+	entry_ref		shareRef;
 };
 
 #endif //PREFS_WINDOW_H
