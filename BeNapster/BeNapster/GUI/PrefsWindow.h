@@ -35,10 +35,9 @@
 class PrefsWindow : public BWindow 
 {
 public:
-	PrefsWindow(BRect, const char *, Preferences *); 
+	PrefsWindow(const char *, Preferences *);
 	
 	void	MessageReceived(BMessage *);
-
 
 private:
 	Preferences 	*myTempPrefs;
@@ -50,11 +49,11 @@ private:
 	BTextControl	*btcPassword;
 	BTextControl	*btcPort;	
 	BTextControl	*btcEmail;	
+	BTextControl	*btcDownloadPath;
 	BPopUpMenu		*bpmConnection;
 	BMenuField		*bmfConnection;
 	BButton         *bbSave;
 	BButton         *bbCancel;
-	
 };
 
 #endif //PREFS_WINDOW_H
