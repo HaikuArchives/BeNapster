@@ -77,7 +77,7 @@ void	FindWindow::MessageReceived(BMessage *bmMessage)
 	char 		*sFindString = NULL; 
 	const char	*sMp3Details;
 	int32 		iSelectedMp3;
-	BStringItem *bsiMp3ToGet;
+	MP3 		*mp3Item;
 	
 	switch ( bmMessage->what )
 	{
@@ -99,8 +99,8 @@ void	FindWindow::MessageReceived(BMessage *bmMessage)
 			iSelectedMp3 = blvMp3s->CurrentSelection();
 			if(iSelectedMp3 >= 0)
 			{
-				bsiMp3ToGet = (BStringItem *)blvMp3s->ItemAt(iSelectedMp3);
-				sMp3Details = bsiMp3ToGet->Text();
+				mp3Item = (MP3 *)blvMp3s->ItemAt(iSelectedMp3);
+				sMp3Details = mp3Item->GetMessage();
 				sFindString = CreateGetString(sMp3Details, sFindString);
 				bmMessage->AddString("GetString", sFindString);
 				myLooper->PostMessage(bmMessage);
@@ -179,14 +179,14 @@ void FindWindow::UnlockFind(void)
 
 void FindWindow::AddToList(char *pMp3, uint16 iBufferLength)
 {
-	BStringItem *bsiMp3;
+	MP3 *mp3Item;
 	//needs to be expanded, to interpret the results
 	char *pBuffer = (char *)malloc(iBufferLength + 1);
 	
 	memcpy(pBuffer, pMp3, iBufferLength);
 	*(pBuffer + (int32)iBufferLength) = '\0';
-	bsiMp3 = new BStringItem(pBuffer);
+	mp3Item = new MP3(pBuffer);
 	Lock();
-	blvMp3s->AddItem(bsiMp3);
+	blvMp3s->AddItem(mp3Item);
 	Unlock();
 }

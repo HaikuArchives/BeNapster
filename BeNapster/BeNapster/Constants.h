@@ -29,6 +29,9 @@ const uint32 BENAPSTER_PREFERENCES		= 'BNpf';
 const uint32 BENAPSTER_FIND_WINDOW     	= 'BNfw';
 const uint32 BENAPSTER_RESUME_WINDOW   	= 'BNrw';
 
+const uint32 PREFS_SAVE				= 'PWsv';
+const uint32 PREFS_CONNECTYION_TYPE	= 'PWct';
+
 
 
 // PPC owners will need to 'byte reverse' these to little endian
@@ -51,7 +54,20 @@ const uint16 NAPSTER_GET        	= 0x00CB;
 const uint16 NAPSTER_DOWNLOAD_ACK   = 0x00CC;
 const uint16 NAPSTER_REMOTE_SEND    = 0x01F4;
 
-const uint32 PREFS_SAVE				= 'PWsv';
-const uint32 PREFS_CONNECTYION_TYPE	= 'PWct';
 
+// array of array of chars holding the connection speeds
+
+const char aConnectionSpeeds[11][14] = {  
+									{'u','n','k','n','o','w','n','\0','\0','\0','\0','\0','\0','\0'},
+									{'1','4','.','4',' ','k','b','p','s','\0','\0','\0','\0','\0'},
+									{'2','8','.','8',' ','k','p','b','s','\0','\0','\0','\0','\0'},
+									{'3','3','.','6',' ','k','b','p','s','\0','\0','\0','\0','\0'},
+									{'5','6','.','7',' ','k','b','p','s','\0','\0','\0','\0','\0'},
+									{'6','4','K',' ','I','S','D','N','\0','\0','\0','\0','\0','\0'},
+									{'1','2','8','K',' ','I','S','D','N','\0','\0','\0','\0','\0'},
+									{'C','a','b','l','e','\0','\0','\0','\0','\0','\0','\0','\0','\0'},
+									{'D','S','L','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0'},
+									{'T','1','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0','\0'},
+									{'T','3',' ','o','r',' ','g','r','e','a','t','e','r','\0'}
+								};
 #endif

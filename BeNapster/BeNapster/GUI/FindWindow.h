@@ -10,6 +10,7 @@
 
 #include "Napster.h"
 #include "Constants.h"
+#include "MP3.h"
 //BeNapster - Napster Client for the Be Operating system
 //Copyright(C) 2000 David Burnett
 //
