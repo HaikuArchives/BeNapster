@@ -271,7 +271,6 @@ void LogWindow::ActOnMessage(uint16 iMessageType, uint16 iMessageLength, char *p
 
 	BAlert     *baGeneralAlert;
 	BString status;
-	char stats[3][10];
 		
 	switch(iMessageType)
 	{
@@ -378,23 +377,10 @@ void LogWindow::Connect(void)
 
 		tidOutLoop = spawn_thread(OutCommsLoop, "Communications Out Thread", B_LOW_PRIORITY, this);
 		stTheadStatus = resume_thread(tidOutLoop);
-/*=======
-		if(tidInLoop == 0)   // InCommsLoop isn't running
-		{
-			tidInLoop = spawn_thread(InCommsLoop, "Communications In Thread", B_LOW_PRIORITY, this);
-			stTheadStatus = resume_thread(tidInLoop);
-		}
-		
-		if(tidOutLoop == 0)	// OutCommsLoop isn't running
-		{
-			tidOutLoop = spawn_thread(OutCommsLoop, "Communications Out Thread", B_LOW_PRIORITY, this);
-			stTheadStatus = resume_thread(tidOutLoop);
-		}
->>>>>>> 1.5*/
 
 		if(memcmp(myPreferences->GetPort(),"0\0",2 != 0 && tidReceive == 0 )) // port isn't o and Remote Thread isn't running
 		{
-			tidReceive = spawn_thread(ReceiveLoop, "Remote Thread", B_LOW_PRIORITY, myPreferences);
+			tidReceive = spawn_thread(ReceiveLoop, "Remote Thread", B_LOW_PRIORITY, this);
 			stTheadStatus = resume_thread(tidReceive);
 		}
 		
@@ -563,8 +549,11 @@ void	LogWindow::BeginUpload(char *message)
 	status="";
 	
 	if(myNapster->UploadFile(realFilename.String())) {
-		status << "Upload Of " << realFilename << "Acknowledged";
+		status << "Upload Of " << realFilename << " Acknowledged";
 		LogMessage(status.String(), BN_STATUS);
+		status = "";
+		status << nick << " " << "\"" << realFilename << "\"";
+		myNapster->Send(status.String(), NAPSTER_UPLOAD_ACK);
 	}
 	else {
 		status << "Error While Attempting To Upload " << realFilename;

@@ -47,13 +47,16 @@ public:
 	bool	QuitRequested();
 	void    Connect(void);
 	void	BeginUpload(char *);
+	void		LogMessage(const char *, uint16);
 	
 	bool 		bSomeThingToSend, bRegistered;
 	char		*mySendThis;
+	
 	uint16      myMessageType;
 	Napster     *myNapster;
 	Preferences *myPreferences;
-
+	BNetEndpoint	*netEndpoint;
+	
 private:
 	BMenuBar			*myLogMenuBar; 
 	BScrollView 		*scrollTextView;
@@ -71,7 +74,6 @@ private:
 	
 	void		NewDownload(char *, uint16);
 	void 		ShowPrefsWindow(const char *);
-	void		LogMessage(const char *, uint16);
 	void		ShowGNU(void);
 	void		SetStatusColor(rgb_color);
 	void		SetErrorColor(rgb_color);
