@@ -129,8 +129,13 @@ int32 DownloadLoop(void *pDummy)
 	for(pLeaf = pTemp; *pLeaf != '\\' && *pLeaf != '/'; pLeaf-- );
 	pLeaf++;
 	*pFilenameEnd = '\0';
-	bfSong = new BFile(pLeaf, B_WRITE_ONLY|B_CREATE_FILE|B_OPEN_AT_END);	
-	
+	BPath Path(myPrefs->GetDownloadPath(), NULL, true);
+	if(Path.InitCheck() == B_OK) {	// Making sure we have a valid path.
+		Path.Append(pLeaf);
+		bfSong = new BFile(Path.Path(), B_WRITE_ONLY|B_CREATE_FILE|B_OPEN_AT_END);
+	} else	// No valid path, use default (current directory)
+		bfSong = new BFile(pLeaf, B_WRITE_ONLY|B_CREATE_FILE|B_OPEN_AT_END);
+		
 	if(bfSong->InitCheck() == B_OK)
 	{	
 		stReturnCode = bnaSong.SetTo(iIPAddress, iPort);
