@@ -18,7 +18,12 @@
 #ifndef COMMS_TREADS_H
 #define COMMS_TREADS_H
 
+#include <File.h>
+#include <NetworkKit.h>
+#include <String.h>
 #include "GUI/LogWindow.h"
+#include "GUI/DownloadWindow.h"
+#include "GUI/DownloadView.h"
 #include "Preferences/Preferences.h"
 #include "Napster.h"
 
@@ -29,5 +34,8 @@ int32 OutCommsLoop(void *);
 int32 DownloadLoop(void *);
 int32 ReceiveLoop(void *);
 int32 DoAccept(void *);
+bool SendAFile(class LogWindow*, const char*);
+bool UploadFromUser(class LogWindow*, const char*, uint32);
+
 
 #endif //COMMS_TREADS_H

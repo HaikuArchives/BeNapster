@@ -59,6 +59,7 @@ void Napster::Connect(const char *sServer, int32 iPort)
 	bool bConnectedOkay = true;
 	
 	stReturnCode = bnaNapsterServer.SetTo(sServer, iPort);
+	//stReturnCode = bnaNapsterServer.SetTo("208.184.216.218", 4444);
 	try
 	{
 		stReturnCode = bneNapsterServer.Connect(bnaNapsterServer);

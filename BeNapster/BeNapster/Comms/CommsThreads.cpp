@@ -14,7 +14,6 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
 #include <ctype.h>
 #include "Comms/CommsThreads.h"
 
@@ -90,7 +89,7 @@ int32 DownloadLoop(void *pDummy)
 	BFile       	*bfSong;
 	
 	Preferences		*myPrefs;
-	
+	DownloadView	*dlView;
 	DownloadWindow *myDownloadWindow;
 	
 	myPrefs = (Preferences *)pDummy;
@@ -174,20 +173,20 @@ int32 DownloadLoop(void *pDummy)
 			//create the download window now we know all the details
 			myDownloadWindow = new DownloadWindow(BRect(100,100, 400, 200), "BeNapster Download", 
 				B_DOCUMENT_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, B_NOT_RESIZABLE, 
-				B_CURRENT_WORKSPACE, (float )iFileLength, pLeaf);
+				B_CURRENT_WORKSPACE);
 			
 			myDownloadWindow->Show();
 			
-			
+			dlView = myDownloadWindow->AddTransfer(pFile, iFileLength);
 			// The 0xFF is part of the mp3 so we need to write it out
 			bfSong->Write(pReceiveBuffer, iBytesReceived);	
 			iDataLength = iBytesReceived;
-			myDownloadWindow->AddBytesReceived(iBytesReceived);
+			dlView->AddBytesReceived(iBytesReceived);
 			
 			iBytesReceived = bneSong.Receive(pReceiveBuffer, 4096);
 			bfSong->Write(pReceiveBuffer, iBytesReceived);
 			iDataLength += iBytesReceived;	
-			myDownloadWindow->AddBytesReceived(iBytesReceived);
+			dlView->AddBytesReceived(iBytesReceived);
 			
 			while(iDataLength != iFileLength)
 			{
@@ -198,7 +197,7 @@ int32 DownloadLoop(void *pDummy)
 					}
 					bfSong->Write(pReceiveBuffer, iBytesReceived);	
 					iDataLength += iBytesReceived;
-					myDownloadWindow->AddBytesReceived(iBytesReceived);
+					dlView->AddBytesReceived(iBytesReceived);
 			}
 			
 			bfSong->Unset();
@@ -211,146 +210,192 @@ int32 DownloadLoop(void *pDummy)
 
 int32 ReceiveLoop(void *pDummy)
 {
-	DownloadWindow 	*myDownloadWindow;
-	Preferences 	*myPreferences;
-
+	LogWindow		*logWindow;
+	
 	BNetEndpoint 	bneNapsterPort;
 	BNetEndpoint 	*bneReceived;
-	BFile           *bfMp3;
 	thread_id		acceptedThread;
 		
-	uint16			*pShort;
-	uint16 			iMessageType, iLength;
-	size_t          iBytesReceived;
-	uint32          iFileLength, iDataLength = 0;
-
-	char *sFileName, *pTemp, *pNameEnd;	
-	char *pBuffer;
+	logWindow = (LogWindow *)pDummy;
 	
-	myPreferences = (Preferences *)pDummy;
-	
-	pBuffer = (char *)malloc(4096);
-	pShort = (uint16 *)pBuffer;
-	
-		
-	bneNapsterPort.Bind(atol(myPreferences->GetPort()));
+	bneNapsterPort.Bind(atol(logWindow->myPreferences->GetPort()));
 	
 	bneNapsterPort.Listen();
-	//for ( ; ; ) {
+	for ( ; ; ) {
 		bneReceived = bneNapsterPort.Accept();
-	//	acceptedThread = spawn_thread(DoAccept, "Post-Connection Accept", B_LOW_PRIORITY, bneReceived);
-	//	resume_thread(acceptedThread);
-	//}
-	bneReceived->Send("\n",1);
-
-	// should get a standard napster message
-
-	iBytesReceived = bneReceived->Receive(pBuffer, 2);	
-	iLength = *pShort;
-	iBytesReceived = bneReceived->Receive(pBuffer, 2);
-	iMessageType = *pShort;
-	iBytesReceived = bneReceived->Receive(pBuffer, (int32)iLength);
-
-	// message should contain username and file name	
-	pTemp = strchr(pBuffer,'\"');
-	pTemp++;
-	
-	pNameEnd = strchr(pTemp,'\"');
-	*pNameEnd = '\0';
-	
-	for(pTemp = pNameEnd; *pTemp != '\\' && *pTemp != '/'; pTemp--);  // '/' in case we ever get BeOS or *nix files
-	pTemp++;
-	sFileName = (char *)malloc(pNameEnd - pTemp + 2);
-	*sFileName = '\0';   // terminate the string
-	
-	strcpy(sFileName, pTemp);
-	bfMp3 = new BFile(sFileName, B_WRITE_ONLY|B_CREATE_FILE|B_OPEN_AT_END);	
-	
-	if (bfMp3->InitCheck() == B_OK)
-	{
-		pTemp = pNameEnd + 2;  // should give us the file length
-		iFileLength = strtoul(pTemp, NULL, 10);
-	
-		bneReceived->Send("0",1);   // I think this is the start position, other values may be resumes
-	
-		myDownloadWindow = new DownloadWindow(BRect(100,100, 400, 200), "Upload From User", 
-				B_DOCUMENT_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, B_NOT_RESIZABLE, 
-				B_CURRENT_WORKSPACE, (float )iFileLength, sFileName);
-		
-		myDownloadWindow->Show();
-	
-		iDataLength = 0;
-		
-		while(iDataLength < iFileLength)
-		{
-			iBytesReceived = bneReceived->Receive(pBuffer, 4096);
-			if (iBytesReceived < 0)
-			{
-				break;
-			}
-			bfMp3->Write(pBuffer, iBytesReceived);	
-			iDataLength += iBytesReceived;
-			myDownloadWindow->AddBytesReceived(iBytesReceived);
-		}
-		bfMp3->Unset();
-		myDownloadWindow->PostMessage(B_QUIT_REQUESTED);
+		logWindow->netEndpoint = bneReceived;
+		acceptedThread = spawn_thread(DoAccept, "Post-Connection Accept", B_LOW_PRIORITY, logWindow);
+		resume_thread(acceptedThread);
 	}
-		
-	bneReceived->Close();
 	return(0);
 }
 
 // Run after a client connects
 int32 DoAccept(void *pointer)
 {
-	uint16 mType;		// For holding message type
-	uint16 mLength;		// For holding message length
-	int32 bytesRead;
-	BNetEndpoint* netEndpoint;
-	BString parsed;
-		
+	LogWindow*	logWindow;
+	BString received,status,path;
+	int32 offset;
+	uint32 fileLength, bytesRead;
+	BString nick;
+	BString filename;
+	BString lengthStr;
+			
 	unsigned char* buffer;	// For holding whatever it is we receive
 	
-	netEndpoint = (BNetEndpoint *)pointer;
+	logWindow = (LogWindow *)pointer;
 	
 	buffer = (unsigned char *)malloc(1024);		// We'll take the data in 1K
 												// Chunks
+	logWindow->netEndpoint->Send("\n", 1);		
 	
-	netEndpoint->Send("\n",1);					// ?		
-
-	while((bytesRead = netEndpoint->Receive((unsigned char *)buffer, 1024)) > 0) {
-		if(*buffer == 'G') {		// Looks like someone wants us to send them a file		
-			for(int i = 0; i < 3; ++i) {
-				parsed += *buffer;		
-				buffer++;
-			}
-			if (parsed == "GET") {	// Affirmative
-				buffer++;
-				parsed = "";
-				while(*buffer != '\"') {
-					parsed += *buffer;
-					buffer++;
-				}
-				BString nick = parsed;
-				buffer++;
-				
-				parsed = "";
-				
-				while(*buffer != '\"') {
-					parsed += *buffer;
-					buffer++;
-				}	
-				BString filename = parsed;
-				parsed = "";
-				parsed << "Got - " << nick << " " << filename;
-			}
-			else {
-				buffer--;
-				buffer--;
-				buffer--;
-			}
-		}
-	
+	// Get a line from the connection
+	while(logWindow->netEndpoint->IsDataPending()) {
+		bytesRead = logWindow->netEndpoint->Receive((unsigned char *)buffer, 1024);
+		*(buffer + bytesRead) = '\0';
+		received += (char *)buffer;
+		if(isdigit(*(buffer + (bytesRead - 1))))
+			break;
 	}
+	if(received.Compare("GET", 3) == 0) {		// Looks like somebody wants a file
+		offset = received.FindFirst("\"", 3);	// Figure out where the filename starts
+		received.CopyInto(nick, 3, (offset - 3));
+		received.CopyInto(filename, (offset + 1), ((received.FindLast("\"") - 1) - offset) );
+		status << "Received request from " << nick << " To download " << filename;	
+		logWindow->LogMessage(status.String(), BN_MESSAGE); 			
+		if((SendAFile(logWindow, filename.String()) == false)) {
+			status << "\nAn Error Occured While Sending " << filename << " to " << nick;
+			logWindow->LogMessage(status.String(), BN_ERROR);
+		} else {
+			status << "\nTransfer of " << filename << " to " << nick << " successful";
+			logWindow->LogMessage(status.String(), BN_STATUS);
+		}
+	}
+	if(received.Compare("SEND", 4) == 0) {
+		offset = received.FindFirst("\"", 4);
+		received.CopyInto(nick, 4, (offset -4));
+		received.CopyInto(filename, (offset + 1), ((received.FindLast("\"") - 1) - offset) );
+		received.CopyInto(lengthStr, (received.FindLast("\"")+2), (received.Length() - (received.FindLast("\"")+2)));
+		fileLength = strtoul(lengthStr.String(), NULL, 10);
+		status << "Received Request from " << nick << " To Upload " << filename << " To Us.";
+		logWindow->LogMessage(status.String(), BN_MESSAGE);
+		if((UploadFromUser(logWindow, filename.String(), fileLength) == false)) {
+			logWindow->LogMessage(status.String(), BN_ERROR);
+		} else {
+			status << "\nSuccesfully Received " << filename << " from " << nick;
+			logWindow->LogMessage(status.String(), BN_STATUS);
+		}
+	}	
+	// Close the connection
+	logWindow->netEndpoint->Close();
+	return 0;
+}
+
+bool SendAFile(LogWindow* logWindow, const char* filename)
+{
+	BString path,status;
+	int32 bytesSent, bytesRead, totbytes = 0;
+	DownloadView *dlView;
+	DownloadWindow *myDownloadWindow;
+	unsigned char* buffer;
+	
+	// Allocate some memory for the receive buffer
+	buffer = (unsigned char*) malloc(1024);
+	
+	// Try and find the file
+	path << logWindow->myPreferences->GetShareDir() << "/" << filename;
+	BFile sendFile(path.String(), B_READ_ONLY);
+	if(sendFile.InitCheck() != B_OK) {
+		status << "Could not open " << path << "for reading";
+		logWindow->LogMessage(status.String(), BN_ERROR);
+		logWindow->netEndpoint->Close();
+		return false;
+	}
+
+	
+	int32 fsize;
+	
+	sendFile.GetSize((off_t *)&fsize);
+	status = "";
+	status << fsize;
+	
+	logWindow->myNapster->Send("", NAPSTER_UPLOAD_START);
+	bytesSent = logWindow->netEndpoint->Send((char *) status.String(), status.Length());
+	myDownloadWindow = new DownloadWindow(BRect(100,100, 400, 200), "BeNapster Upload", 
+			B_DOCUMENT_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, B_NOT_RESIZABLE, 
+			B_CURRENT_WORKSPACE);
+	myDownloadWindow->Show();
+	dlView = myDownloadWindow->AddTransfer(filename, (float)fsize);
+	BNetBuffer netBuffer;
+	while((bytesRead = sendFile.Read((unsigned char *)buffer, 1024)) > 0) {
+		bytesSent = logWindow->netEndpoint->Send((unsigned char*)buffer, bytesRead);
+		totbytes += bytesSent;
+		myDownloadWindow->Lock();
+		dlView->AddBytesReceived((float)bytesSent);
+		myDownloadWindow->Unlock();
+		if((bytesSent == -1) || (totbytes >= fsize)) break;
+	}
+	
+	// Tell the napster server we're through sending the file
+	logWindow->myNapster->Send("", NAPSTER_UPLOAD_DONE);
+	dlView->SetFinished(true);
+	myDownloadWindow->Refresh();
+	return true;
+}
+
+
+bool UploadFromUser(LogWindow* logWindow, const char* filename, uint32 iFileLength)
+{
+	uint32 iBytesReceived;
+	BString fileString;
+	BFile* bfMp3;
+	DownloadWindow* myDownloadWindow;
+	unsigned char* pBuffer;
+	BString status;
+	BString tmp;
+	DownloadView* dlView;
+	
+	pBuffer = (unsigned char *) malloc(4096);
+	
+	fileString = filename;
+	fileString.ReplaceAll("\\", "/");
+	
+	tmp << logWindow->myPreferences->GetDownloadPath() << "/";
+	
+	fileString.Prepend(tmp);
+	
+	
+	bfMp3 = new BFile(fileString.String(), B_WRITE_ONLY|B_CREATE_FILE|B_OPEN_AT_END);	
+	
+	if (bfMp3->InitCheck() == B_OK)
+	{
+		logWindow->netEndpoint->Send("0",1);   // I think this is the start position, other values may be resumes
+	
+		myDownloadWindow = new DownloadWindow(BRect(100,100, 400, 200), "Upload From User", 
+				B_DOCUMENT_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, B_NOT_RESIZABLE, 
+				B_CURRENT_WORKSPACE);
+		myDownloadWindow->Show();
+		dlView = myDownloadWindow->AddTransfer(filename, (float)iFileLength);
+		uint32 iDataLength = 0;
 		
+		while(iDataLength < iFileLength)
+		{
+			iBytesReceived = logWindow->netEndpoint->Receive((unsigned char*)pBuffer, 4096);
+			if (iBytesReceived < 0)
+			{
+				break;
+			}
+			bfMp3->Write(pBuffer, iBytesReceived);	
+			iDataLength += iBytesReceived;
+			myDownloadWindow->Lock();
+			dlView->AddBytesReceived(iBytesReceived);
+			myDownloadWindow->Unlock();
+		}
+		dlView->SetFinished(true);
+		bfMp3->Unset();
+		myDownloadWindow->Refresh();
+	} else {
+		logWindow->LogMessage("Could Not Open The File", BN_ERROR);
+	}
+	return true;
 }
