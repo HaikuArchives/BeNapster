@@ -350,7 +350,7 @@ BString MP3File::GetMD5()
 	MD5Init(&context);
 	
 	// Read the buffer
-	while(bytes_read < 300000) {
+	while(bytes_read < 299008) {
 		n=Read(buffer, 1024);
 		if(n < 0) break;
 		bytes_read+=n;
