@@ -127,10 +127,27 @@ PrefsWindow::PrefsWindow(const char *title, Preferences *myPreferences) :
 
 void	PrefsWindow::MessageReceived(BMessage *bmMessage)
 {
+	
+	BEntry    *beDropped;
+	BPath     bpDropped;
+	entry_ref erDropped;
+	
+
+	
+	
 	switch ( bmMessage->what )
 	{
 		case B_SIMPLE_DATA:
-			break;
+			if(B_OK == bmMessage->FindRef("refs", &erDropped))
+			{
+				beDropped = new BEntry(&erDropped);
+				if(beDropped->IsDirectory())
+				{
+					beDropped->GetPath(&bpDropped);
+					btcDownloadPath->SetText(bpDropped.Path());
+				}
+			}
+			break;					
 		case PREFS_CONNECTYION_TYPE:
 			memcpy(sConnectionType, bmMessage->FindString("CONNECTION"),2);
 			break;
