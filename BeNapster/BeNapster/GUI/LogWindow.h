@@ -70,8 +70,6 @@ private:
 	void 		ShowPrefsWindow(const char *);
 	void		LogMessage(char *, int32);
 	void		ShowGNU(void);
-	bool		bFindWindow;
-	bool		bNapster;
 	
 	int32		iTidDownloadCount;
 

@@ -35,7 +35,7 @@
 class PrefsWindow : public BWindow 
 {
 public:
-	PrefsWindow(BRect, const char *, window_look, window_feel, uint32, uint32, Preferences *); 
+	PrefsWindow(BRect, const char *, Preferences *); 
 	
 	void	MessageReceived(BMessage *);
 

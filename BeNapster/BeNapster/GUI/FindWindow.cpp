@@ -19,15 +19,15 @@
 #include "FindWindow.h"
 #endif
 
+#include <Box.h>
 
-FindWindow::FindWindow(BRect frame, const char *title, 
-	window_look look, window_feel feel, uint32 flags, uint32 workspaces, BLooper *blMainWindow) :
-	BWindow(frame, title, look, feel, flags, workspaces)
+FindWindow::FindWindow(BRect frame, const char *title, BLooper *blMainWindow):
+	BWindow(frame, title, B_TITLED_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, 0)
 {
 
 	BRect rectWinFrame = Bounds();
 	myLooper = blMainWindow;
-	bvMainView = new BView(rectWinFrame, "CoveringView", 
+	bvMainView = new BBox(rectWinFrame, "CoveringView", 
 					   B_FOLLOW_ALL, 
 					   B_NAVIGABLE|B_WILL_DRAW);
 	AddChild(bvMainView);
@@ -57,11 +57,14 @@ FindWindow::FindWindow(BRect frame, const char *title,
 	myGet = new BButton(BRect(210, 100, 300, 118), "cmdGet", "Get", bmGet, B_FOLLOW_NONE, B_NAVIGABLE|B_WILL_DRAW);
 	bvMainView->AddChild(myGet);
 
-	
 	rectWinFrame.top = 130;	
 	rectWinFrame.right -= B_V_SCROLL_BAR_WIDTH;
 	rectWinFrame.bottom -=  B_H_SCROLL_BAR_HEIGHT;
 	BRect rectText = rectWinFrame;
+
+	/* give us some border room */
+	/* this also seems to fix our "listview overlaps its scrollbars" problem */
+	rectText.InsetBy(10,10);
 
 	blvMp3s = new BListView(rectText, "Found");
 

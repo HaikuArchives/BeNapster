@@ -19,17 +19,17 @@
 #include "PrefsWindow.h"
 #endif
 
+#include <Box.h>
 
-PrefsWindow::PrefsWindow(BRect frame, const char *title, 
-	window_look look, window_feel feel, uint32 flags, uint32 workspaces, Preferences *myPreferences) :
-	BWindow(frame, title, look, feel, flags, workspaces)
+PrefsWindow::PrefsWindow(BRect frame, const char *title, Preferences *myPreferences) :
+	BWindow(frame, title, B_TITLED_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, 0)
 {
 
 	BMessage *bmDummy; 
 
 	sConnectionType = (char *)calloc(3,1);
 
-	bvMainView = new BView(Bounds(), "CoveringView", 
+	bvMainView = new BBox(Bounds(), "CoveringView", 
 					   B_FOLLOW_ALL, 
 					   B_NAVIGABLE|B_WILL_DRAW);
 	AddChild(bvMainView);
@@ -58,7 +58,7 @@ PrefsWindow::PrefsWindow(BRect frame, const char *title,
 	bvMainView->AddChild(btcEmail);
 
 
-	bpmConnection = new BPopUpMenu(myPreferences->GetConnection());
+	bpmConnection = new BPopUpMenu(myPreferences->GetConnectionText());
 	bmfConnection = new BMenuField(BRect(10,170,300,195), "TOVTranslation", "Connction Speed:  ",bpmConnection);
 	bmfConnection->SetDivider(be_plain_font->StringWidth("Connction Speed:  "))  ;
 
@@ -117,7 +117,6 @@ PrefsWindow::PrefsWindow(BRect frame, const char *title,
 	bvMainView->AddChild(bbCancel);
 	
 	myTempPrefs = 	myPreferences; 
-
 }
 
 void	PrefsWindow::MessageReceived(BMessage *bmMessage)

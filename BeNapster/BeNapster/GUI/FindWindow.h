@@ -29,12 +29,12 @@
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include <stdlib.h>
-
+#include <Window.h>
 
 class FindWindow : public BWindow 
 {
 public:
-	FindWindow(BRect frame, const char *, window_look, window_feel, uint32, uint32, BLooper *); 
+	FindWindow(BRect frame, const char *title, BLooper *blMainWindow); 
 //	~FindWindow();
 	
 	void	MessageReceived(BMessage *);

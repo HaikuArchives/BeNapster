@@ -48,7 +48,8 @@ public:
 	const char 		*GetUser(void);
 	const char 		*GetPassword(void);
 	const char 		*GetPort(void);
-	const char 		*GetConnection(void);			
+	const char 		*GetConnection(void);
+	const char		*GetConnectionText(void);			
 	const char 		*GetEmail(void);			
 
 private:

@@ -19,9 +19,7 @@
 
 Preferences::Preferences(BLooper *myLogWindow)
 {
-
 	blLogWindow = myLogWindow;
-
 }
 
 
@@ -103,6 +101,11 @@ const char *Preferences::GetConnection(void)
 
 	return(sConnection);
 
+}
+
+const char *Preferences::GetConnectionText(void)
+{
+	return(aConnectionSpeeds[atol(sConnection)]);
 }
 
 const char *Preferences::GetEmail(void)

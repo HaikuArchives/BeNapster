@@ -24,7 +24,9 @@
 
 LogWindow::LogWindow(BRect frame, const char *title, 
 	window_look look, window_feel feel, uint32 flags, uint32 workspaces) :
-	BWindow(frame, title, look, feel, flags, workspaces)
+	BWindow(frame, title, look, feel, flags, workspaces),
+	myFindWindow(NULL),
+	myNapster(NULL)
 {
 
 	BMenu 		*bmuTemp;
@@ -32,24 +34,18 @@ LogWindow::LogWindow(BRect frame, const char *title,
 	BMenuItem	*bmiTemp;
 	
 	bSomeThingToSend = false;
-	bFindWindow = false;
-	bNapster = false;
 	iTidDownloadCount = 0;
 
-	BRect rectWinFrame = Bounds();
-	BRect brMenuFrame = Bounds();
 
 	myPreferences = new Preferences(this);
-	if(myPreferences->InitPreferences())
-	{
+	if(myPreferences->InitPreferences()) {
 		bRegistered = true;
-	}
-	else
-	{
+	} else {
 		ShowPrefsWindow("Registration");
 		bRegistered = false;
 	}
 
+	BRect brMenuFrame(Bounds());
 	brMenuFrame.bottom = brMenuFrame.top + 19;
 	
 	myLogMenuBar = new BMenuBar(brMenuFrame, "BeNapster Menu", B_FOLLOW_LEFT_RIGHT|B_FOLLOW_TOP, B_ITEMS_IN_ROW, true);
@@ -89,7 +85,8 @@ LogWindow::LogWindow(BRect frame, const char *title,
 
 	AddChild(myLogMenuBar);
 
-	rectWinFrame.top += 19;   /// allow for Menu...
+	BRect rectWinFrame(Bounds());
+	rectWinFrame.top = myLogMenuBar->Bounds().bottom + 1;   /// allow for Menu...
 	rectWinFrame.right -= B_V_SCROLL_BAR_WIDTH;
 	rectWinFrame.bottom -=  B_H_SCROLL_BAR_HEIGHT;
 	BRect rectText = rectWinFrame;
@@ -141,7 +138,7 @@ void	LogWindow::MessageReceived(BMessage *bmMessage)
 			be_app->PostMessage(B_QUIT_REQUESTED);
 			break;
 		case BENAPSTER_FIND_WINDOW:
-			if(!bFindWindow)
+			if(!myFindWindow)
 			{
 				bsScreen = new BScreen(this);
 				brFindWindow = bsScreen->Frame();
@@ -151,14 +148,19 @@ void	LogWindow::MessageReceived(BMessage *bmMessage)
 				brFindWindow.left = 30;
 				brFindWindow.right -= 30;			 
 
+				/* put at least a little limit on the max size of */
+				/* the window, for those of us running at 1600x1200 */
+				if (brFindWindow.Width() > 800) {
+					brFindWindow.right = brFindWindow.left + 800;
+				}
+				
+				if (brFindWindow.Height() > 600) {
+					brFindWindow.bottom = brFindWindow.top + 600;
+				}
+
 				myFindWindow = new FindWindow(brFindWindow, 
 											  "BeNapster Find",
-											  B_MODAL_WINDOW_LOOK,
-											  B_NORMAL_WINDOW_FEEL,
-											  0,
-											  B_CURRENT_WORKSPACE,
-											  Looper());
-				bFindWindow = true;
+											   Looper());
 			}
 			myFindWindow->Show();
 			break;
@@ -189,10 +191,8 @@ void	LogWindow::MessageReceived(BMessage *bmMessage)
 			myNapster->Quit();
 			break;
 		case BENAPSTER_REGISTER:
-			if(bNapster)
-			{
-				if(myNapster->bConnected && !bRegistered)
-				{
+			if(myNapster) {
+				if(myNapster->bConnected && !bRegistered) {
 					myNapster->Register(myPreferences->GetUser());
 				}
 			}
@@ -238,7 +238,7 @@ void LogWindow::ActOnMessage(uint16 iMessageType, uint16 iMessageLength, char *p
 		
 		case NAPSTER_LOGIN_OKAY:
 			LogMessage("Login completed", 0);
-			if(bFindWindow)
+			if(myFindWindow)
 			{
 				myFindWindow->UnlockFind();
 			}
@@ -246,13 +246,13 @@ void LogWindow::ActOnMessage(uint16 iMessageType, uint16 iMessageLength, char *p
 		case NAPSTER_FIND:			
 			break;
 		case NAPSTER_FIND_END:
-			if(bFindWindow)
+			if(myFindWindow)
 			{
 				myFindWindow->UnlockFind();
 			}
 			break;
 		case NAPSTER_FOUND:
-			if(bFindWindow)
+			if(myFindWindow)
 			{
 				myFindWindow->AddToList(pMessage, iMessageLength);
 			}
@@ -290,10 +290,10 @@ void LogWindow::ActOnMessage(uint16 iMessageType, uint16 iMessageLength, char *p
 
 }
 
-bool	LogWindow::QuitRequested()
+bool
+LogWindow::QuitRequested()
 {
-	if(bFindWindow)
-	{
+	if(myFindWindow) {
 		myFindWindow->PostMessage(B_QUIT_REQUESTED);
 	}
 //	pwPreferences->PostMessage(B_QUIT_REQUESTED);
@@ -323,10 +323,7 @@ void LogWindow::Connect(void)
 	myNapster->Connect(pServer, atol(pPort));
 	
 	
-	if(myNapster->bConnected)
-	{
-		
-		bNapster = true;
+	if(myNapster->bConnected) {
 		txtLogText->Insert("Connected...\n");
 
 		tidInLoop = spawn_thread(InCommsLoop, "Communications In Thread", B_LOW_PRIORITY, this);
@@ -339,9 +336,8 @@ void LogWindow::Connect(void)
 		stTheadStatus = resume_thread(tidReceive);
 		
 
-		txtLogText->Insert("Loging in...\n");		
-		if(bRegistered)
-		{
+		txtLogText->Insert("Logging in...\n");		
+		if(bRegistered) {
 			myNapster->Login(myPreferences->GetUser(),
 							  myPreferences->GetPassword(),
 			 				  myPreferences->GetPort(),
@@ -349,9 +345,7 @@ void LogWindow::Connect(void)
 						   	  myPreferences->GetConnection());
 		
 		}
-	}
-	else
-	{
+	} else {
 		txtLogText->Insert("Connection Failed...\n");		
 	}
 
@@ -379,22 +373,16 @@ void LogWindow::NewDownload(char *pBuffer, uint16 iBufferLength)
 	iPort = atol(pPort);	
 	*pTemp = ' ';  // repair the damage we've done
 
-	if(iPort > 0)
-	{
-		if (iTidDownloadCount < 2)
-		{	
+	if(iPort > 0) {
+		if (iTidDownloadCount < 2) {	
 			myPreferences->pDownloadDetails = pBuffer;		
 			tidDownload[iTidDownloadCount] = spawn_thread(DownloadLoop, "Downloading Thread", B_LOW_PRIORITY, myPreferences);
 			stTheadStatus = resume_thread(tidDownload[iTidDownloadCount]);
 			iTidDownloadCount++;
-		}
-		else
-		{
+		} else {
 			LogMessage("Maximum Downloads Exceeded", 0);
 		}
-	}
-	else
-	{
+	} else {
 		LogMessage("Asking Remote client for file", 0);
 		// Send a 500, asking the other client to send me the file.
 		pUser = pBuffer;	
@@ -426,10 +414,6 @@ void LogWindow::ShowPrefsWindow(const char *sName)
 
 	pwPreferences = new PrefsWindow(BRect (20, 20, 330, 265),
 							  			  sName,
-						  				  B_MODAL_WINDOW_LOOK,
-						  				  B_NORMAL_WINDOW_FEEL,
-						  				  0,
-						                  B_CURRENT_WORKSPACE,
                                           myPreferences);
     
 	pwPreferences->Show();
