@@ -129,6 +129,7 @@ void	PrefsWindow::MessageReceived(BMessage *bmMessage)
 {
 	
 	BEntry    *beDropped;
+	BEntry    *beTraversed;
 	BPath     bpDropped;
 	entry_ref erDropped;
 	
@@ -145,6 +146,18 @@ void	PrefsWindow::MessageReceived(BMessage *bmMessage)
 				{
 					beDropped->GetPath(&bpDropped);
 					btcDownloadPath->SetText(bpDropped.Path());
+				}
+				else
+				{
+					if(beDropped->IsSymLink())
+					{
+						beTraversed = new BEntry(&erDropped, true);
+						if(beTraversed->IsDirectory())
+						{
+							beDropped->GetPath(&bpDropped);
+							btcDownloadPath->SetText(bpDropped.Path());
+						}
+					}
 				}
 			}
 			break;					
