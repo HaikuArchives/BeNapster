@@ -587,6 +587,7 @@ int32	LogWindow::FindAllMP3s(void* dummy)
 		if(filename.IFindLast("mp3", filename.Length()) != B_ERROR)
 		{
 			printf("%s\n", filename.String());
+			shareName.Truncate(0);
 			if(inSubdir)
 				shareName << (new BPath(startDir, NULL, false))->Leaf() << "/" << filename;
 			else

@@ -18,7 +18,7 @@
 #include "DownloadView.h"
 
 
-DownloadView::DownloadView(BRect frame, const char *title, char *sFileName, float fFileSize) :
+DownloadView::DownloadView(BRect frame, const char *title, const char *sFileName, float fFileSize) :
 	BView(frame, title, B_FOLLOW_LEFT, B_WILL_DRAW)
 {
 

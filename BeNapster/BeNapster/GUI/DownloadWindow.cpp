@@ -38,14 +38,12 @@ DownloadWindow::DownloadWindow(BRect frame, const char *title,
 	bvCoverView->SetViewColor(rgbBGColor);
 
 	bsvCoverScroll = new BScrollView("scrollDownloadViews", bvCoverView, B_FOLLOW_ALL, B_FRAME_EVENTS, true, true, B_FANCY_BORDER);
-//	bsvCoverScroll->ScrollBar(B_HORIZONTAL)->SetRange(0.0, 0.0); 
-//	bsvCoverScroll->ScrollBar(B_VERTICAL)->SetRange(0.0, 0.0); 
 	AddChild(bsvCoverScroll);
 		
 
 }
 
-DownloadView *DownloadWindow::AddTransfer(char *sFileName, float fFileSize)
+DownloadView *DownloadWindow::AddTransfer(const char *sFileName, float fFileSize)
 {
 	BRect brView;
 	

@@ -33,7 +33,7 @@ class DownloadWindow : public BWindow
 	public:
 		DownloadWindow(BRect, const char *, window_look, window_feel, uint32, uint32);
 		
-		DownloadView 	*AddTransfer(char *, float);
+		DownloadView 	*AddTransfer(const char *, float);
 		void		 	Refresh(void);
 
 	private:

@@ -333,18 +333,15 @@ BString MP3File::GetMD5()
 {
 	MD5_CTX context;
 	unsigned char *digest;	
-	unsigned char *p;
+	char *p;
 	unsigned char buffer[1024];
 	BString returnval;
 	int bytes_read=0;
 	
 	digest = (unsigned char *) malloc(16);
-	p = (unsigned char *) malloc(16);
+	p = (char *) malloc(16);
 	
-	int n;
-		
-	p = (unsigned char *) malloc(16);
-	
+	int n;	
 	
 	// Initialize the MD5 Context
 	MD5Init(&context);
@@ -360,7 +357,7 @@ BString MP3File::GetMD5()
 	
 	for(int i = 0; i < 16; ++i) {
 		sprintf(p, "%02x", *digest++);
-		returnval += (char *)p;
+		returnval += p;
 	}
 	
 	return returnval;

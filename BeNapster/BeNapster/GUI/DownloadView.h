@@ -29,7 +29,7 @@ class DownloadView: public BView
 {
 
 	public:
-		DownloadView(BRect, const char *, char *,float);
+		DownloadView(BRect, const char *, const char *,float);
 		void AddBytesReceived (float);
 		bool IsFinished(void);
 		void SetFinished(bool);
