@@ -20,7 +20,7 @@
 #endif
 
 FindWindow::FindWindow(BRect frame, const char *title, BLooper *blMainWindow):
-	BWindow(frame, title, B_TITLED_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, 0)
+	BWindow(frame, title, B_DOCUMENT_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL, 0)
 {
 
 	BRect rectWinFrame = Bounds();
@@ -96,6 +96,9 @@ void	FindWindow::MessageReceived(BMessage *bmMessage)
 		case B_SIMPLE_DATA:
 			break;
 		case BENAPSTER_FIND:
+			// Empty previous result list first
+			blvMp3s->RemoveItems(0, blvMp3s->CountItems());
+			// Fill in new result list
 			sFindString = CreateFindString(sFindString);
 			bmMessage->AddString("FindString", sFindString);
 			myLooper->PostMessage(bmMessage);
