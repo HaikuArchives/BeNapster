@@ -20,7 +20,6 @@
 #endif
 
 #include <TextView.h>
-#include "Util/Util.h"
 
 const char* MD5_file(char *filename);
 

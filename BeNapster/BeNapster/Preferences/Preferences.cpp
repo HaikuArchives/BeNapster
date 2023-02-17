@@ -17,7 +17,7 @@
 
 #include "Preferences.h"
 
-Preferences::Preferences(BLooper *myLogWindow = be_app)
+Preferences::Preferences(BLooper *myLogWindow)
 {
 	blLogWindow = myLogWindow;
 }

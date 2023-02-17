@@ -57,7 +57,7 @@ private:
 	BButton         *bbSave;
 	BButton         *bbCancel;
 	BButton			*browseButton;
-	OpenDirFilter	openFilter;
+	OpenDirFilter	*openFilter;
 	OpenDirPanel	*openPanel;
 	entry_ref		shareRef;
 };

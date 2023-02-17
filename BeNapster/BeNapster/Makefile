@@ -34,11 +34,15 @@ SRCS= BeNapster.cpp \
 	MP3.cpp \
 	Napster.cpp \
 	GUI/DownloadWindow.cpp \
+	GUI/DownloadView.cpp \
 	GUI/FindWindow.cpp \
 	GUI/InfoHeader \
 	GUI/LogWindow.cpp \
 	GUI/PrefsWindow.cpp \
+	GUI/OpenDirPanel.cpp \
 	Preferences/Preferences.cpp \
+	Util/MP3File.cpp \
+	Util/MD5.cpp \
 	Comms/CommsThreads.cpp
 
 #	specify the resource files to use
@@ -60,7 +64,7 @@ RSRCS=Resource.rsrc
 #		naming scheme you need to specify the path to the library
 #		and it's name
 #		library: my_lib.a entry: my_lib.a or path/my_lib.a
-LIBS= be netapi
+LIBS= be bnetapi tracker
 
 #	specify additional paths to directories following the standard
 #	libXXX.so or libXXX.a naming scheme.  You can specify full paths
@@ -73,7 +77,7 @@ LIBPATHS=
 #	additional paths to look for system headers
 #	thes use the form: #include <header>
 #	source file directories are NOT auto-included here
-SYSTEM_INCLUDE_PATHS = 
+SYSTEM_INCLUDE_PATHS = /boot/system/develop/headers/private/netservices/
 
 #	additional paths to look for local headers
 #	thes use the form: #include "header"

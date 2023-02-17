@@ -179,7 +179,7 @@ void	PrefsWindow::MessageReceived(BMessage *bmMessage)
 			memcpy(sConnectionType, bmMessage->FindString("CONNECTION"),2);
 			break;
 		case BENAPSTER_BROWSE:
-			openPanel = new OpenDirPanel(new BMessenger(NULL,this), &openFilter);
+			openPanel = new OpenDirPanel(new BMessenger(NULL,this), openFilter);
 			openPanel->Show();	
 			break;
 		case B_REFS_RECEIVED:
